@@ -14,6 +14,13 @@ class Portfolio extends Model
     protected $table = 'portfolios';
 
     /**
+     * Indicates if the model should be timestamped
+     * 
+     * @var bool
+     */
+    protected $timestamps = false;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array

@@ -14,6 +14,13 @@ class Portfolio_Stock extends Model
     protected $table = 'portfolio_stocks';
 
     /**
+     * Indicates if the model should be timestamped
+     * 
+     * @var bool
+     */
+    protected $timestamps = false;
+
+    /**
      * Define primary key of the associated table
      * 
      * @var string

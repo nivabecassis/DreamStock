@@ -12,4 +12,14 @@ class Portfolio extends Model
      * @var array
      */
     protected $fillable = ['cash_owned'];
+
+    /**
+     * Gets the user that owns the portfolio
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function users()
+    {
+        return $this->belongsTo('App\User');
+    }
 }

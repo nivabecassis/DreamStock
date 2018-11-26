@@ -14,8 +14,12 @@ class CreatePortfolioStockTable extends Migration
     public function up()
     {
         Schema::create('portfolio_stock', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
+            $table->string('ticker_symbol');
+            $table->integer('portfolio_id')->unsigned()->index();
+            $table->integer('share_count')->unsigned();
+            $table->timestamp('purchase_date');
+            $table->decimal('purchase_price', 10, 2);
+            $table->foreign('portfolio_id')->references('id')->on('portfolio');
         });
     }
 

@@ -15,8 +15,9 @@ class CreatePortfolioTable extends Migration
     {
         Schema::create('portfolio', function (Blueprint $table) {
             $table->increments('id');
-            $table->foreign('id')->references('id')->on('users');
+            $table->integer('user_id')->unsigned()->index();
             $table->decimal('cash_owned', 10, 2);
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

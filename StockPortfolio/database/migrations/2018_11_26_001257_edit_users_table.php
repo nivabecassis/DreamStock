@@ -13,7 +13,10 @@ class EditUsersTable extends Migration
      */
     public function up()
     {
-        //
+        Schema::table('users', function(Blueprint $table)
+        {
+            $table->timestamps('register_date');
+        });
     }
 
     /**
@@ -23,6 +26,9 @@ class EditUsersTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('users', function(Blueprint $table)
+        {
+            $table->dropColumn('register_date');
+        });
     }
 }

@@ -14,6 +14,16 @@ class Portfolio extends Model
     protected $fillable = ['cash_owned'];
 
     /**
+     * Gets all portfolio stocks for the portfolio
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function portfolio_stocks()
+    {
+        return $this->hasMany('App\Portfolio_Stock');
+    }
+
+    /**
      * Gets the user that owns the portfolio
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

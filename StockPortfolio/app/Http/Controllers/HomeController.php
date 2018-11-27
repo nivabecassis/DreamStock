@@ -28,12 +28,13 @@ class HomeController extends Controller
     public function index()
     {
         // Pass the current user's data to the view
-        $portfolio = \Auth::user()->portfolios();
-        $data = [
-            'user' => \Auth::user(),
-            'portfolio' => $portfolio->get(),
-            'stocks' => $portfolio->portfolio_stocks()->get(),
-        ];
-        return var_dump($data);
+//        $portfolio = \Auth::user()->portfolios();
+//        $data = [
+//            'user' => \Auth::user(),
+//            'portfolio' => $portfolio->get(),
+//            'stocks' => $portfolio->get()->portfolio_stocks()->get(),
+//        ];
+//        return var_dump($data);
+        return view('home');
     }
 }

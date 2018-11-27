@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Illuminate\Http\Request;
+use App\User;
+use App\Portfolio;
+use App\Portfolio_Stock;
 
 class HomeController extends Controller
 {
@@ -25,12 +28,12 @@ class HomeController extends Controller
     public function index()
     {
         // Pass the current user's data to the view
-//        $data = [
-//            'user' => \Auth::user(),
-//            'portfolio' => \Auth::user()->portfolios(),
-//            'stocks' => \Auth::user()->portfolios()->portfolio_stocks(),
-//        ];
-//        return view('home', $data);
-        return \Auth::user()->portfolios();
+        $portfolio = \Auth::user()->portfolios();
+        $data = [
+            'user' => \Auth::user(),
+            'portfolio' => $portfolio->get(),
+            'stocks' => $portfolio->portfolio_stocks()->get(),
+        ];
+        return var_dump($data);
     }
 }

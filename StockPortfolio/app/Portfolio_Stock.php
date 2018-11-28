@@ -18,14 +18,7 @@ class Portfolio_Stock extends Model
      * 
      * @var bool
      */
-    protected $timestamps = false;
-
-    /**
-     * Define primary key of the associated table
-     * 
-     * @var string
-     */
-    protected $primaryKey = 'ticker_symbol';
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.

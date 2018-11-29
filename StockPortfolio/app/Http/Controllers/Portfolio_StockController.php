@@ -28,16 +28,19 @@ class Portfolio_StockController extends Controller
      * @param Request $request
      */
     function purchaseStock(Request $request){
-        if (isset($_POST["purchase_price"])) {
+        /* Haven't tested */
+
+        $user = Auth::user();
+        if ($request->input("purchase_price")) {
             $portfolio_stock = new Portfolio_Stock();
             $portfolio_stock->ticker_symbol = $request->input("symbol");
-            $portfolio_stock->portfolio_id = User::find(Auth::id())->portfolios()->id;
+            $portfolio_stock->portfolio_id = $user->portfolios->id;
             $portfolio_stock->share_count = $request->input("share_count");
             $portfolio_stock->purchase_date = date("Y-m-d H:i:s");
-            $portfolio_stock->purchase_price = $_POST["purchase_price"];
+            $portfolio_stock->purchase_price = $request->input("purchase_price");
             $portfolio_stock->save();
         }
-    } // purchaseStock()
+    }
 
     /**
      * Update record in Portfolio_Stock
@@ -45,8 +48,11 @@ class Portfolio_StockController extends Controller
      * @param Request $request
      */
     function updateStock(Request $request) {
-        $portfolio_stock = Portfolio_Stock::where("portfolio_id", "=", User::find(Auth::id())->portfolios()->id);
+        /* Haven't tested */
+
+        $user = Auth::user();
+        $portfolio_stock = $user->portfolios->portfolio_stocks;
         $portfolio_stock->share_count = $request->input("share_count");
         $portfolio_stock->save();
-    } // updateStock()
+    }
 }

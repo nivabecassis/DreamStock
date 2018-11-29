@@ -24,11 +24,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-        $user->portfolios->portfolio_stocks;
-
-        return view('home', [
-            'user' => $user,
-        ]);
+        return view('home');
     }
 }

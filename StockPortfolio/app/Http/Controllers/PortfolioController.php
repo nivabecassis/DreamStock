@@ -10,8 +10,6 @@ use App\User;
  *
  * @author Austin Antoine
  * @author Stephen Kwan
- * @author Niv Abecassis
- * @author Yehoshua Fish
  */
 class PortfolioController extends Controller
 {
@@ -54,15 +52,14 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Display user balance
+     * Gets user balance
      *
-     * @param $username User to get balance for
-     * @return Response
+     * @param user Authenticated user
+     * @return cash_owned
      */
-    public function getBalance($username)
+    public function getBalance($user)
     {
         // Not sure if this works properly yet
-        $portfolio = User::find($username)->portfolios();
-        return $portfolio->cash_owned;
+        return $user->portfolios->cash_owned;
     }
 }

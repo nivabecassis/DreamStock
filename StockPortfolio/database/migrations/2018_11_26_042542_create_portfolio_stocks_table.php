@@ -14,6 +14,7 @@ class CreatePortfolioStocksTable extends Migration
     public function up()
     {
         Schema::create('portfolio_stocks', function (Blueprint $table) {
+            $table->increments('id');
             $table->string('ticker_symbol');
             $table->integer('portfolio_id')->unsigned()->index();
             $table->integer('share_count')->unsigned();

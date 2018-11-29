@@ -10,12 +10,21 @@
                     @if (session('status'))
                         <div class="alert alert-success" role="alert">
                             {{ session('status') }}
+
                         </div>
                     @endif
+<<<<<<< HEAD
                     <div>   
                         <p>Portfolio value: {{ $portfolioValue }} $USD</p>
                     </div>  
+=======
+>>>>>>> Add test
                 </div>
+
+                <div>   
+                    <p>{{ $user }}</p>
+                </div>  
+
             </div>
         </div>
     </div>

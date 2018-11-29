@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Illuminate\Support\Facades\Auth;
 
 /*
  * Portfolio controller
@@ -25,10 +26,9 @@ class PortfolioController extends Controller
      * @param $username User to get balance for
      * @return Response
      */
-    public function getBalance($username)
+    public function getBalance()
     {
         // Not sure if this works properly yet
-        $portfolio = User::find($username)->portfolios();
-        return $portfolio->cash_owned;
+        return User::find(Auth::id())->portfolios()->cash_owned;
     } // getBalance()
 }

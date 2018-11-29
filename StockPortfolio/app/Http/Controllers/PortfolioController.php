@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\User;
+use Illuminate\Support\Facades\Auth;
 
 /*
  * Portfolio controller
@@ -59,7 +60,7 @@ class PortfolioController extends Controller
      */
     public function getBalance($user)
     {
-        // Not sure if this works properly yet
+        // Haven't tested
         return $user->portfolios->cash_owned;
     }
 }

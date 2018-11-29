@@ -10,21 +10,21 @@
                     @if (session('status'))
                         <div class="alert alert-success" role="alert">
                             {{ session('status') }}
-
                         </div>
                     @endif
+<<<<<<< HEAD
 <<<<<<< HEAD
                     <div>   
                         <p>Portfolio value: {{ $portfolioValue }} $USD</p>
                     </div>  
 =======
 >>>>>>> Add test
+=======
+                    <div>   
+                        <p>Portfolio value: {{ $portfolioValue }} $USD</p>
+                    </div>  
+>>>>>>> Add getPortfolioValue function in PortfolioController
                 </div>
-
-                <div>   
-                    <p>{{ $user }}</p>
-                </div>  
-
             </div>
         </div>
     </div>

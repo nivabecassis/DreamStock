@@ -21,11 +21,13 @@ class PortfolioController extends Controller
 
     public function index()
     {
-        // Gets current authenticated user
-        $user = Auth::user();
+        // Loads metadata
+        $json = $this->loadMetadata();
+        $data = $json['info']->data;
+        $tickers = $json['tickers'];
 
         // Gets portfolio value
-        $portfolioValue = $this->getPortfolioValue($user);
+        $portfolioValue = $this->getPortfolioValue($data, $tickers);
 
         return view('home', [
             'portfolioValue' => $portfolioValue,
@@ -37,19 +39,10 @@ class PortfolioController extends Controller
      * 
      * @return totalValue Sum of all current portfolio value
      */
-    public function getPortfolioValue($user)
+    public function getPortfolioValue($json, $tickers)
     {
-        // Gets authenticated user's metadatas
-        $user->portfolios->portfolio_stocks;
-
-        // Loads all metadata
-        $stocksData = $user->portfolios->portfolio_stocks;
-
-        // Gets all user's share counts
-        $tickers = $this->getShareCount($stocksData);
-
         // Gets all user's current total price for each company
-        $prices = $this->getAllPrices($tickers);
+        $prices = $this->getAllPrices($json, $tickers);
 
         // Returns sum of all prices
         return $this->sumAll($prices);
@@ -68,12 +61,38 @@ class PortfolioController extends Controller
     }
 
     /**
+     * Loads authenticated user's metadata
+     * 
+     * @return array Array which contains stock information and tickers 
+     */
+    private function loadMetadata()
+    {
+        // Gets current authenticated user
+        $user = Auth::user();
+
+        // Gets authenticated user's metadatas
+        $user->portfolios->portfolio_stocks;
+
+        // Loads all metadata
+        $stocksData = $user->portfolios->portfolio_stocks;
+
+        // Gets all user's share counts
+        $tickers = $this->getShareCount($stocksData);
+
+        // Returns stock information through API request and tickers
+        return array(
+            'info' => FinanceAPI::getAllStockInfo(array_keys($tickers)),
+            'tickers' => $tickers
+        );
+    }
+
+    /**
      * Stores share count of each company that the authenticated user bought
      * 
      * @param metadata User's metadata
      * @return array Array of share count
      */
-    private function getShareCount($metadata) 
+    private function getShareCount($metadata)
     {
         $shareCount = array();
         foreach ($metadata as $value) {
@@ -86,14 +105,12 @@ class PortfolioController extends Controller
     /**
      * Stores total price of each company in an array
      * 
+     * @param json Json containing stock information from API
      * @param array Array of share counts
      * @return array Array of total price
      */
-    private function getAllPrices(array $shareCount)
+    private function getAllPrices($json, array $shareCount)
     {
-        $strJson = FinanceAPI::getAllStocksInfo(array_keys($shareCount));
-        $json = json_decode($strJson)->data;
-
         $currentPrices = array();
         foreach ($json as $value) { // Loop through Json 
             foreach ($shareCount as $key => $share) { // Loop through all user's share count
@@ -112,7 +129,7 @@ class PortfolioController extends Controller
      * @param array Array containing every prices
      * @return decimal Sum of all prices
      */
-    private function sumAll(array $prices) 
+    private function sumAll(array $prices)
     {
         $sum = 0;
         foreach ($prices as $value) {

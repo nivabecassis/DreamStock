@@ -22,6 +22,14 @@ class Portfolio_StockController extends Controller
         $this->middleware('auth');
     }
 
+    public function quotes(Request $request)
+    {
+        $allQuotes = json_decode(FinanceAPI::getAllStockInfo($request->input("tickers")));
+        return view('buying_stocks.quotes', [
+            'quotes' => $allQuotes,
+        ]);
+    }
+
     /**
      * Adds entry to Portfolio_Stock table
      *
@@ -85,7 +93,6 @@ class Portfolio_StockController extends Controller
         $user = Auth::user();
         $stocks = $user->portfolios->portfolio_stocks;
         $converter = new CurrencyConverter();
-        $financeTool = new FinanceAPI();
         $stockCount = $stocks->ticker_symbol->count();
 
         /*
@@ -98,7 +105,7 @@ class Portfolio_StockController extends Controller
             return false;
         }
 
-        $stockInfo = json_decode($financeTool->getStockInfo($request->input("ticker_symbol")));
+        $stockInfo = json_decode(FinanceAPI::getAllStockInfo($request->input("ticker_symbol")));
         $priceUSD = $converter->convertToUSD($stockInfo->data["currency"], $stockInfo->data["price"]);
 
         if ($user->portfolios->cash_owned - 10 >= $priceUSD * $request->input("share_count"))
@@ -120,10 +127,8 @@ class Portfolio_StockController extends Controller
      */
     private function getPurchasePrice(Request $request)
     {
-        $financeTool = new FinanceAPI();
-
         // How much purchasing the shares costs
-        $stockInfo = json_decode($financeTool->getStockInfo($request->input("ticker_symbol")));
+        $stockInfo = json_decode(FinanceAPI::getAllStockInfo($request->input("ticker_symbol")));
         return $stockInfo->data["price"] * $request->input("share_count");
     }
 }

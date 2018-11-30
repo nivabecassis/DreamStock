@@ -41,7 +41,7 @@ class HomeController extends Controller
         $stocks = [];
         foreach($dbStocks as $stock) {
             $ticker = $stock->ticker_symbol;
-            array_push($stocks, FinanceAPI::getStockInfo($ticker)['data']);
+            array_push($stocks, FinanceAPI::getStockInfo($ticker)->data);
         }
 
         return [

@@ -32,11 +32,6 @@ class PortfolioController extends Controller
         ]);
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> a9dc27f89a05142765cd6e6e18407fd30af4323e
     /**
      * Gets total sum of all current portfolio value
      * 
@@ -60,35 +55,7 @@ class PortfolioController extends Controller
         return $this->sumAll($prices);
     }
 
-<<<<<<< HEAD
->>>>>>> Add getPortfolioValue function in PortfolioController
     /**
-<<<<<<< HEAD
-     * Gets total sum of all current portfolio value
-     * 
-     * @return totalValue Sum of all current portfolio value
-     */
-    public function getPortfolioValue($user)
-    {
-        // Get authenticated user's metadatas
-        $user->portfolios->portfolio_stocks;
-        $stocks = $user->portfolios->portfolio_stocks;
-
-        // Sum all purchase_price to determine the portfolio value
-        $totalValue = 0;
-        foreach ($stocks as $value) {
-            $totalValue += $value->purchase_price;
-        }
-
-        return $totalValue;
-    }
-
-    /**
-=======
->>>>>>> Modify getBalance()
-=======
-    /**
->>>>>>> a9dc27f89a05142765cd6e6e18407fd30af4323e
      * Gets user balance
      *
      * @param user Authenticated user
@@ -97,20 +64,7 @@ class PortfolioController extends Controller
     public function getBalance($user)
     {
         // Not sure if this works properly yet
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         return $user->portfolios->cash_owned;
-=======
-        $portfolio = User::find($username)->portfolios();
-        return $portfolio->cash_owned;
->>>>>>> Add getPortfolioValue function in PortfolioController
-=======
-        return $user->portfolios->cash_owned;
->>>>>>> Modify getBalance()
-=======
-        return $user->portfolios->cash_owned;
->>>>>>> a9dc27f89a05142765cd6e6e18407fd30af4323e
     }
 
     /**

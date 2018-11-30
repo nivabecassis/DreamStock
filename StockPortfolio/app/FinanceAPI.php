@@ -10,6 +10,7 @@ class FinanceAPI
      * Gets stock info as associative array
      *
      * @param $ticker Company to get stock information for
+<<<<<<< HEAD
      * @return json object
      */
     function getStockInfo($ticker)
@@ -37,3 +38,15 @@ class FinanceAPI
     }
 }
 
+=======
+     * @return associative array
+     */
+    public static function getStockInfo($ticker)
+    {
+        $url = WORLDTRADINGDATA;
+        $query = "?symbol=" . $ticker . "&api_token=" . APIKEY;
+
+        return file_get_contents($url . $query);
+    }
+}
+>>>>>>> a9dc27f89a05142765cd6e6e18407fd30af4323e

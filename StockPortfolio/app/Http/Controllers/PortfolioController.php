@@ -33,7 +33,10 @@ class PortfolioController extends Controller
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> a9dc27f89a05142765cd6e6e18407fd30af4323e
     /**
      * Gets total sum of all current portfolio value
      * 
@@ -57,6 +60,7 @@ class PortfolioController extends Controller
         return $this->sumAll($prices);
     }
 
+<<<<<<< HEAD
 >>>>>>> Add getPortfolioValue function in PortfolioController
     /**
 <<<<<<< HEAD
@@ -82,6 +86,9 @@ class PortfolioController extends Controller
     /**
 =======
 >>>>>>> Modify getBalance()
+=======
+    /**
+>>>>>>> a9dc27f89a05142765cd6e6e18407fd30af4323e
      * Gets user balance
      *
      * @param user Authenticated user
@@ -92,6 +99,7 @@ class PortfolioController extends Controller
         // Not sure if this works properly yet
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return $user->portfolios->cash_owned;
 =======
         $portfolio = User::find($username)->portfolios();
@@ -100,6 +108,9 @@ class PortfolioController extends Controller
 =======
         return $user->portfolios->cash_owned;
 >>>>>>> Modify getBalance()
+=======
+        return $user->portfolios->cash_owned;
+>>>>>>> a9dc27f89a05142765cd6e6e18407fd30af4323e
     }
 
     /**

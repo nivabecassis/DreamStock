@@ -12,24 +12,9 @@
                             {{ session('status') }}
                         </div>
                     @endif
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                     <div>   
                         <p>Portfolio value: {{ $portfolioValue }} $USD</p>
                     </div>  
-=======
->>>>>>> Add test
-=======
-                    <div>   
-                        <p>Portfolio value: {{ $portfolioValue }} $USD</p>
-                    </div>  
->>>>>>> Add getPortfolioValue function in PortfolioController
-=======
-                    <div>   
-                        <p>Portfolio value: {{ $portfolioValue }} $USD</p>
-                    </div>  
->>>>>>> a9dc27f89a05142765cd6e6e18407fd30af4323e
                 </div>
             </div>
         </div>

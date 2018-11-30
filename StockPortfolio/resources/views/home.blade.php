@@ -14,6 +14,7 @@
                     @endif
                     <div>   
                         <p>Portfolio value: {{ $portfolioValue }} $USD</p>
+                        <p>Portfolio last close value: {{ $portfolioLastCloseValue }} $USD</p>
                     </div>  
                 </div>
             </div>

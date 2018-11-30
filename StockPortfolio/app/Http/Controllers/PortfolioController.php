@@ -26,23 +26,41 @@ class PortfolioController extends Controller
         $data = $json['info']['data'];
         $tickers = $json['tickers'];
 
-        // Gets portfolio value
+        // Gets current portfolio value
         $portfolioValue = $this->getPortfolioValue($data, $tickers);
+
+        // Gets last close portfolio value
+        $portfolioLastCloseValue = $this->getPortfolioLastCloseValue($data, $tickers);
 
         return view('home', [
             'portfolioValue' => $portfolioValue,
+            'portfolioLastCloseValue' => $portfolioLastCloseValue,
         ]);
     }
 
     /**
      * Gets total sum of all current portfolio value
      * 
-     * @return totalValue Sum of all current portfolio value
+     * @return totalCurrentValue Sum of all current portfolio value
      */
     public function getPortfolioValue($json, $tickers)
     {
         // Gets all user's current total price for each company
         $prices = $this->getAllPrices($json, $tickers);
+
+        // Returns sum of all prices
+        return $this->sumAll($prices);
+    }
+
+    /**
+     * Gets total sum of all last close price portfolio value
+     * 
+     * @return totalLastCloseValue Sum of all last close portfolio value
+     */
+    public function getPortfolioLastCloseValue($json, $tickers) 
+    {
+        // Gets all user's last close price for each company
+        $prices = $this->getAllLastClosePrices($json, $tickers);
 
         // Returns sum of all prices
         return $this->sumAll($prices);
@@ -105,7 +123,7 @@ class PortfolioController extends Controller
     /**
      * Stores total price of each company in an array
      * 
-     * @param json Json containing stock information from API
+     * @param array Assoc array containing stock information from API
      * @param array Array of share counts
      * @return array Array of total price
      */
@@ -121,6 +139,27 @@ class PortfolioController extends Controller
         }
 
         return $currentPrices;
+    }
+
+    /**
+     * Stores total price of each company in an array
+     * 
+     * @param array Assoc array containing stock information from API
+     * @param array Array of share counts
+     * @return array Array of total price
+     */
+    private function getAllLastClosePrices($json, array $shareCount)
+    {
+        $lastClosePrice = array();
+        foreach ($json as $value) { // Loop through Json 
+            foreach ($shareCount as $key => $share) { // Loop through all user's share count
+                if ($value['symbol'] === $key) { // Check if symbols are matching
+                    array_push($lastClosePrice, $value['close_yesterday'] * $share);
+                }
+            }
+        }
+
+        return $lastClosePrice;
     }
 
     /**

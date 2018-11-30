@@ -70,8 +70,8 @@ class PortfolioController extends Controller
     /**
      * Stores share count of each company that the authenticated user bought
      * 
-     * @param metadata 
-     * @return array
+     * @param metadata User's metadata
+     * @return array Array of share count
      */
     private function getShareCount($metadata) 
     {
@@ -91,14 +91,13 @@ class PortfolioController extends Controller
      */
     private function getAllPrices(array $shareCount)
     {
-        // TODO: Rename 'getStockInfo' function name when supported function is coded in FinanceAPI 
-        $strJson = FinanceAPI::getStockInfo(array_keys($shareCount));
+        $strJson = FinanceAPI::getAllStocksInfo(array_keys($shareCount));
         $json = json_decode($strJson)->data;
 
         $currentPrices = array();
         foreach ($json as $value) { // Loop through Json 
             foreach ($shareCount as $key => $share) { // Loop through all user's share count
-                if ($value === $key) {
+                if ($value->symbol === $key) { // Check if symbols are matching
                     array_push($currentPrices, $value->price * $share);
                 }
             }
@@ -111,7 +110,7 @@ class PortfolioController extends Controller
      * Sums all prices
      * 
      * @param array Array containing every prices
-     * @return sum Sum of all prices
+     * @return decimal Sum of all prices
      */
     private function sumAll(array $prices) 
     {

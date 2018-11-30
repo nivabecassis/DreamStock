@@ -2,11 +2,9 @@
 
 namespace App;
 
-/**
- * Class used for querying worldtradingdata API
- * @package App
- */
-class FinanceAPI
+use App\ApiUri;
+
+class FinanceAPI 
 {
     /**
      * Gets stock info as associative array

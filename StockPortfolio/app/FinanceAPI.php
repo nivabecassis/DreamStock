@@ -9,6 +9,7 @@ namespace App;
 class FinanceAPI
 {
     /**
+<<<<<<< HEAD
      * Gets stock info as associative array
      *
      * @param $ticker Company to get stock information for
@@ -24,12 +25,14 @@ class FinanceAPI
 
 
     /**
+=======
+>>>>>>> 790cb85de0f83746754b4a7e2cb6f80aefdb396b
      * Gets stock info for all tickers
      *
-     * @param $tickers Companies to get quotes from
+     * @param $tickers Companies to get stock information for
      * @return json object
      */
-    function getGlobalQuote(array $tickers)
+    static function getAllStockInfo(array $tickers)
     {
         $symbols = "?symbol=";
         $apiKey = "&api_token=" . APIKEY;
@@ -42,4 +45,3 @@ class FinanceAPI
         return json_decode($strJson);
     }
 }
-

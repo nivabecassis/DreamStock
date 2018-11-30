@@ -23,7 +23,7 @@ class PortfolioController extends Controller
     {
         // Loads metadata
         $json = $this->loadMetadata();
-        $data = $json['info']->data;
+        $data = $json['info']['data'];
         $tickers = $json['tickers'];
 
         // Gets portfolio value
@@ -114,8 +114,8 @@ class PortfolioController extends Controller
         $currentPrices = array();
         foreach ($json as $value) { // Loop through Json 
             foreach ($shareCount as $key => $share) { // Loop through all user's share count
-                if ($value->symbol === $key) { // Check if symbols are matching
-                    array_push($currentPrices, $value->price * $share);
+                if ($value['symbol'] === $key) { // Check if symbols are matching
+                    array_push($currentPrices, $value['price'] * $share);
                 }
             }
         }

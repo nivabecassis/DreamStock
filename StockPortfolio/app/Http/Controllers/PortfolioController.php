@@ -45,10 +45,10 @@ class PortfolioController extends Controller
         // Loads all metadata
         $stocksData = $user->portfolios->portfolio_stocks;
 
-        // Gets all user's tickers
-        $tickers = $this->getAllTickers($stocksData);
+        // Gets all user's share counts
+        $tickers = $this->getShareCount($stocksData);
 
-        // Gets all user's prices
+        // Gets all user's current total price for each company
         $prices = $this->getAllPrices($tickers);
 
         // Returns sum of all prices
@@ -68,36 +68,40 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Gets all ticker symbols from authenticated user
+     * Stores share count of each company that the authenticated user bought
      * 
-     * @param metadata User's metedata
-     * @return array Array of company tickers
+     * @param metadata 
+     * @return array
      */
-    private function getAllTickers($metadata) 
+    private function getShareCount($metadata) 
     {
-        $companiesTicker = array();
+        $shareCount = array();
         foreach ($metadata as $value) {
-            array_push($companiesTicker, $value->ticker_symbol);
+            $shareCount[$value->ticker_symbol] = $value->share_count;
         }
 
-        return $companiesTicker;
+        return $shareCount;
     }
 
     /**
-     * Gets all prices from authenticated user
+     * Stores total price of each company in an array
      * 
-     * @param tickers User's tickers
-     * @return array Array of current prices
+     * @param array Array of share counts
+     * @return array Array of total price
      */
-    private function getAllPrices(array $tickers)
+    private function getAllPrices(array $shareCount)
     {
         // TODO: Rename 'getStockInfo' function name when supported function is coded in FinanceAPI 
-        $strJson = FinanceAPI::getStockInfo($tickers);
+        $strJson = FinanceAPI::getStockInfo(array_keys($shareCount));
         $json = json_decode($strJson)->data;
 
         $currentPrices = array();
-        foreach ($json as $value) {
-            array_push($currentPrices, $value->price);
+        foreach ($json as $value) { // Loop through Json 
+            foreach ($shareCount as $key => $share) { // Loop through all user's share count
+                if ($value === $key) {
+                    array_push($currentPrices, $value->price * $share);
+                }
+            }
         }
 
         return $currentPrices;

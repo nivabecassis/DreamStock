@@ -41,12 +41,14 @@ class PortfolioController extends Controller
     /**
      * Gets total sum of all current portfolio value
      * 
+     * @param array Array of stock information
+     * @param array Array of ticker symbols
      * @return totalCurrentValue Sum of all current portfolio value
      */
-    public function getPortfolioValue($json, $tickers)
+    public function getPortfolioValue($data, $tickers)
     {
         // Gets all user's current total price for each company
-        $prices = $this->getAllPrices($json, $tickers);
+        $prices = $this->getAllPrices($data, $tickers);
 
         // Returns sum of all prices
         return $this->sumAll($prices);
@@ -55,12 +57,14 @@ class PortfolioController extends Controller
     /**
      * Gets total sum of all last close price portfolio value
      * 
+     * @param array Array of stock information
+     * @param array Array of ticker symbols
      * @return totalLastCloseValue Sum of all last close portfolio value
      */
-    public function getPortfolioLastCloseValue($json, $tickers) 
+    public function getPortfolioLastCloseValue($data, $tickers) 
     {
         // Gets all user's last close price for each company
-        $prices = $this->getAllLastClosePrices($json, $tickers);
+        $prices = $this->getAllLastClosePrices($data, $tickers);
 
         // Returns sum of all prices
         return $this->sumAll($prices);
@@ -127,11 +131,11 @@ class PortfolioController extends Controller
      * @param array Array of share counts
      * @return array Array of total price
      */
-    private function getAllPrices($json, array $shareCount)
+    private function getAllPrices($data, array $tickers)
     {
         $currentPrices = array();
-        foreach ($json as $value) { // Loop through Json 
-            foreach ($shareCount as $key => $share) { // Loop through all user's share count
+        foreach ($data as $value) { // Loop through array 
+            foreach ($tickers as $key => $share) { // Loop through all user's share count
                 if ($value['symbol'] === $key) { // Check if symbols are matching
                     array_push($currentPrices, $value['price'] * $share);
                 }
@@ -148,11 +152,11 @@ class PortfolioController extends Controller
      * @param array Array of share counts
      * @return array Array of total price
      */
-    private function getAllLastClosePrices($json, array $shareCount)
+    private function getAllLastClosePrices($data, array $tickers)
     {
         $lastClosePrice = array();
-        foreach ($json as $value) { // Loop through Json 
-            foreach ($shareCount as $key => $share) { // Loop through all user's share count
+        foreach ($data as $value) { // Loop through array 
+            foreach ($tickers as $key => $share) { // Loop through all user's share count
                 if ($value['symbol'] === $key) { // Check if symbols are matching
                     array_push($lastClosePrice, $value['close_yesterday'] * $share);
                 }

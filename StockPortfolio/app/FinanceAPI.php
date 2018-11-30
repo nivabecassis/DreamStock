@@ -15,7 +15,9 @@ class FinanceAPI
     public static function getStockInfo($ticker)
     {
         $query = "?symbol=" . $ticker . "&api_token=" . APIKEY;
-        return file_get_contents(WORLDTRADINGDATA . $query);
+        $strJson = file_get_contents(WORLDTRADINGDATA . $query);
+
+        return json_decode($strJson);
     }
 
 
@@ -25,7 +27,7 @@ class FinanceAPI
      * @param $tickers Companies to get quotes from
      * @return json object
      */
-    public static function getAllStocksInfo(array $tickers)
+    public static function getAllStockInfo(array $tickers)
     {
         $symbols = "?symbol=";
         $apiKey = "&api_token=" . APIKEY;
@@ -33,7 +35,9 @@ class FinanceAPI
             $symbols .= $ticker . ",";
         }
         $symbols = substr($symbols, 0 , strlen($symbols ) - 1);
-        return file_get_contents(WORLDTRADINGDATA . $symbols . $apiKey);
+        $strJson = file_get_contents(WORLDTRADINGDATA . $symbols . $apiKey);
+
+        return json_decode($strJson);
     }
 }
 

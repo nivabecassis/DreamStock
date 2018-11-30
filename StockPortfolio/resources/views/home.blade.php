@@ -5,8 +5,10 @@
         <div class="row justify-content-center mb-3">
             <div class="header">
                 <div class="m-2 d-inline ">Your Portfolio</div>
-                <div class="m-2 d-inline">Balance: {{$portfolio->cash_owned}}</div>
+                <div class="m-2 d-inline">Balance: {{$portfolio['cash']}}</div>
                 <div class="m-2 d-inline">Member since: {{$user->timestamps}}</div>
+                <div class="m-2 d-inline">Current value: {{$portfolio['value']}}</div>
+                <div class="m-2 d-inline">Last close value: {{$portfolio['closeValue']}}</div>
             </div>
         </div>
         <div class="row justify-content-center">
@@ -22,19 +24,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($stocks as $stock)
-                            <tr>
-                                <td>{{$stock['symbol']}}</td>
-                                <td>{{$stock['price']}}</td>
-                                <td>{{$stock['close_yesterday']}}</td>
-                                <td>{{$stock['day_change']}}</td>
-                            </tr>
-                            <div class="card">
-                                <div class="stock_info">{{$stock->ticker_symbol}}</div>
-                                <div class="stock_info">Purchased on: {{$stock->purchase_date}}</div>
-                                <div class="stock_info">Owned: {{$stock->share_count}}</div>
-                            </div>
-                        @endforeach
+                            @foreach($stocks as $stock)
+                                <tr class="stock_record rounded">
+                                    <td>{{$stock['symbol']}}</td>
+                                    <td>{{$stock['price']}}</td>
+                                    <td>{{$stock['close_yesterday']}}</td>
+                                    <td>{{$stock['day_change']}}</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

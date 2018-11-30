@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use App\FinanceAPI;
 
 class HomeController extends Controller
 {
@@ -23,16 +24,30 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-        $name = $user->name;
-        $cash = $user->portfolios->cash_owned;
-        $since = $user->timestamps;
+        return view('home', $this->getDataForView());
+    }
 
-        return view('home', [
+    /**
+     * Get all the info that is needed for the the homepage information.
+     * @return array containing the data for the view
+     */
+    private function getDataForView()
+    {
+        $user = Auth::user();
+        $portfolio = $user->portfolios;
+
+        // Get more information for each user owned stock
+        $dbStocks = $portfolio->portfolio_stocks;
+        $stocks = [];
+        foreach($dbStocks as $stock) {
+            $ticker = $stock->ticker_symbol;
+            array_push($stocks, FinanceAPI::getStockInfo($ticker)['data']);
+        }
+
+        return [
             'user' => $user,
-            'name' => $name,
-            'cash' => $cash,
-            'since' => $since,
-        ]);
+            'portfolio' => $portfolio,
+            'stocks' => $stocks,
+        ];
     }
 }

@@ -59,7 +59,6 @@ class PortfolioController extends Controller
      */
     public function getBalance($user)
     {
-        // Haven't tested
         return $user->portfolios->cash_owned;
     }
 }

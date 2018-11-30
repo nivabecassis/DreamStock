@@ -23,7 +23,7 @@
             <div class="form-group">
                 <div class="col-sm-offset-3 col-sm-6">
                     <button type="submit" class="btn btn-default">
-                        <i class="fa fa-plus"></i> Add Task
+                        <i class="fa fa-plus"></i> Buy Stock
                     </button>
                 </div>
             </div>
@@ -31,10 +31,10 @@
     </div>
 
     <!-- Current Tasks -->
-    @if (count($tasks) > 0)
+    @if (count($stocks) > 0)
         <div class="panel panel-default">
             <div class="panel-heading">
-                Current Tasks
+                Stocks that you purchase shares from
             </div>
 
             <div class="panel-body">
@@ -42,7 +42,7 @@
 
                     <!-- Table Headings -->
                     <thead>
-                    <th>Task</th>
+                    <th>Stock</th>
                     <th>&nbsp;</th>
                     </thead>
 

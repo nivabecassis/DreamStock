@@ -8,10 +8,6 @@ namespace App;
  */
 class FinanceAPI
 {
-    function __construct()
-    {
-        //
-    }
 
     /**
      * Gets stock info as associative array

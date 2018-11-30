@@ -12,7 +12,7 @@ class FinanceAPI
      * @param $ticker Company to get stock information for
      * @return json object
      */
-    function getStockInfo($ticker)
+    public static function getStockInfo($ticker)
     {
         $query = "?symbol=" . $ticker . "&api_token=" . APIKEY;
         return file_get_contents(WORLDTRADINGDATA . $query);
@@ -25,7 +25,7 @@ class FinanceAPI
      * @param $tickers Companies to get quotes from
      * @return json object
      */
-    function getGlobalQuote(array $tickers)
+    public static function getAllStocksInfo(array $tickers)
     {
         $symbols = "?symbol=";
         $apiKey = "&api_token=" . APIKEY;

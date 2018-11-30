@@ -14,10 +14,12 @@ class FinanceAPI
      * @param $ticker Company to get stock information for
      * @return json object
      */
-    function getStockInfo($ticker)
+    public static function getStockInfo($ticker)
     {
         $query = "?symbol=" . $ticker . "&api_token=" . APIKEY;
-        return file_get_contents(WORLDTRADINGDATA . $query);
+        $strJson = file_get_contents(WORLDTRADINGDATA . $query);
+
+        return json_decode($strJson);
     }
 
 
@@ -35,7 +37,9 @@ class FinanceAPI
             $symbols .= $ticker . ",";
         }
         $symbols = substr($symbols, 0 , strlen($symbols ) - 1);
-        return file_get_contents(WORLDTRADINGDATA . $symbols . $apiKey);
+        $strJson = file_get_contents(WORLDTRADINGDATA . $symbols . $apiKey);
+
+        return json_decode($strJson);
     }
 }
 

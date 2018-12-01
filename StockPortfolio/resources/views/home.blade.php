@@ -16,6 +16,7 @@
                         <p>Balance: {{ $balance }} $USD</p>
                         <p>Portfolio value: {{ $portfolioValue }} $USD</p>
                         <p>Portfolio last close value: {{ $portfolioLastCloseValue }} $USD</p>
+                        <p>Percentage change: {{ $percentageChange }} %</p>
                     </div>  
                 </div>
             </div>

@@ -30,6 +30,21 @@
                                     <td>{{$stock['price']}}</td>
                                     <td>{{$stock['close']}}</td>
                                     <td>{{$stock['change']}}</td>
+                                    <td>
+                                        <form action="{{ url('/home/'.$stock->id) }}" method="POST">
+                                            {{ csrf_field() }}
+                                            <div class="form-group">
+                                                <button type="submit" id="buy-stock-{{ $stock->id }}" class="btn btn-block">
+                                                    <i class="fa fa-plus"></i> Buy
+                                                </button>
+                                                <button type="submit" id="sell-stock-{{ $stock->id }}" class="btn btn-block">
+                                                    <i class="fa fa-plus"></i> Sell
+                                                </button>
+                                                <input type="number" id="share-count-{{ $stock->id }}" class="form-control"
+                                                    placeholder="300" required>
+                                            </div>
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

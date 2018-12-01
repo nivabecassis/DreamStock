@@ -6,6 +6,7 @@ use Auth;
 use App\FinanceAPI;
 use App\CurrencyConverter;
 use App\Http\Controllers\PortfolioController;
+use http\Env\Request;
 
 class HomeController extends Controller
 {
@@ -17,6 +18,10 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    public function sell(Request $request, $stockId) {
+        // TODO: Perform logic here
     }
 
     /**

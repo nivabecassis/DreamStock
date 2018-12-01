@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Portfolio_Stock;
 use Auth;
 use App\FinanceAPI;
 use App\CurrencyConverter;
-use App\Http\Controllers\PortfolioController;
 use http\Env\Request;
+
+use App\ApiUri;
 
 class HomeController extends Controller
 {
@@ -20,7 +22,8 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
-    public function sell(Request $request, $stockId) {
+    public function sell(Request $request, $stockId)
+    {
         // TODO: Perform logic here
     }
 
@@ -42,49 +45,107 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         $portfolio = $user->portfolios;
+
+        // Array of stocks (comes from database)
         $dbStocks = $portfolio->portfolio_stocks;
 
-        // Get more information for each user owned stock
-        $stocks = [];
-        $shareCount = [];
-        foreach ($dbStocks as $stock) {
-            $ticker = $stock->ticker_symbol;
-            $data = FinanceAPI::getStockInfo($ticker)['data'][0];
-            $stock = $this->keepNecessaryInfo($stock, $data);
-            $this->convertPricesToUSD($data);
+        // Array of ticker symbols
+        $tickers = $this->getTickers($dbStocks);
 
-            // Add the data to new arrays
-            array_push($stocks, $data);
-            array_push($shareCount, $stock->share_count);
-        }
+        // Array of stock data (comes from API call)
+        $stocksData = FinanceAPI::getAllStockInfo($tickers)['data'];
 
-        $portfolio = $this->getPortfolioData($user, $stocks, $shareCount);
+        // Returns a single array containing all the necessary information
+        // for stocks with pricing in USD.
+        $stocks = $this->getStocksInfo($dbStocks, $stocksData);
+
+        // Share count for each stock
+        $shareCounts = $this->getShareCounts($stocks);
+
+        // More details on the portfolio includes: cash_owned, value, last close value
+        $portfolioDetails = $this->getPortfolioData($user, $stocks, $shareCounts);
 
         return [
             'user' => $user,
-            'portfolio' => $portfolio,
+            'portfolio' => $portfolioDetails,
             'stocks' => $stocks,
         ];
+    }
+
+    /**
+     * @param $dbStocks
+     * @param $stocksData
+     * @return array
+     */
+    private function getStocksInfo($dbStocks, $stocksData) {
+        $stocks = array();
+        foreach ($dbStocks as $dbStock) {
+            foreach ($stocksData as $data) {
+                // Matching data from API and from database
+                if($dbStock->ticker_symbol === $data['symbol']) {
+                    // Updated stock object with all the data needed
+                    $stock = $this->keepNecessaryInfo($dbStock, $data);
+                    // Convert all the pricing to USD
+                    $this->convertPricesToUSD($stock);
+                    // Add the individual stock data to the array
+                    array_push($stocks, $stock);
+                }
+            }
+        }
+        return $stocks;
+    }
+
+    /**
+     * Get an array of ticker symbols from an array of stocks.
+     *
+     * @param $stocks array of stocks
+     * @return array of tickers
+     */
+    private function getTickers($stocks)
+    {
+        $tickers = array();
+        foreach ($stocks as $stock) {
+            array_push($tickers, $stock->ticker_symbol);
+        }
+        return $tickers;
+    }
+
+    /**
+     * Gets the share count for each stock.
+     * The returned associative array has key as symbol and value as
+     * share count.
+     *
+     * @param $stocks array associative containing stock data
+     * @return array associative containing symbols => count
+     */
+    private function getShareCounts($stocks)
+    {
+        $shareCounts = array();
+        foreach ($stocks as $stock) {
+            $shareCounts[$stock['symbol']] = $stocks['count'];
+        }
+        return $shareCounts;
     }
 
     /**
      * This function only keeps the necessary info for the app. If
      * the view needs more info, add here.
      *
-     * @param $stock Stock model object
+     * @param $stock Portfolio_Stock model object
      * @param $data JSON object containing extra data on this stock
      * @return array contains info about the stock
      */
-    private function keepNecessaryInfo($stock, $data) {
+    private function keepNecessaryInfo($stock, $data)
+    {
         return [
             'id' => $stock->id,
-            'symbol' => $stock->ticker_symbol,
-            'company' => $data->name,
-            'currency' => $data->currency,
-            'price' => $data->price,
-            'close' => $data->close_yesterday,
-            'change' => $data->day_change,
             'count' => $stock->share_count,
+            'symbol' => $data['symbol'],
+            'company' => $data['name'],
+            'currency' => $data['currency'],
+            'price' => $data['price'],
+            'close' => $data['close_yesterday'],
+            'change' => $data['day_change'],
         ];
     }
 
@@ -92,18 +153,19 @@ class HomeController extends Controller
      * Retrieves more information of the user's portfolio according
      * to their stocks.
      *
-     * @param $user user contains generic information
+     * @param $user User contains stored information from database
      * @param $stocks array of JSON stock objects
-     * @param $shareCount associative array. Key is the ticker symbol,
+     * @param $shareCounts array associative . Key is the ticker symbol,
      * value is the share count for the corresponding symbol.
      * @return array containing portfolio details
      */
-    private function getPortfolioData($user, $stocks, $shareCount)
+    private function getPortfolioData($user, $stocks, $shareCounts)
     {
+        $portfolioController = new PortfolioController();
         return [
             'cash' => $user->portfolios->cash_owned,
-            'value' => PortfolioController::getPortfolioValue($stocks, $shareCount),
-            'closeValue' => PortfolioController::getPortfolioLastCloseValue($stocks, $shareCount),
+            'value' => $portfolioController->getPortfolioValue($stocks, $shareCounts),
+            'closeValue' => $portfolioController->getPortfolioLastCloseValue($stocks, $shareCounts),
         ];
     }
 

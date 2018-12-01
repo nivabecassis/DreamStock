@@ -45,6 +45,7 @@ class HomeController extends Controller
         foreach ($dbStocks as $stock) {
             $ticker = $stock->ticker_symbol;
             $data = FinanceAPI::getStockInfo($ticker)['data'][0];
+            $stock = $this->keepNecessaryInfo($stock, $data);
             $this->convertPricesToUSD($data);
 
             // Add the data to new arrays
@@ -58,6 +59,27 @@ class HomeController extends Controller
             'user' => $user,
             'portfolio' => $portfolio,
             'stocks' => $stocks,
+        ];
+    }
+
+    /**
+     * This function only keeps the necessary info for the app. If
+     * the view needs more info, add here.
+     *
+     * @param $stock Stock model object
+     * @param $data JSON object containing extra data on this stock
+     * @return array contains info about the stock
+     */
+    private function keepNecessaryInfo($stock, $data) {
+        return [
+            'id' => $stock->id,
+            'symbol' => $stock->ticker_symbol,
+            'company' => $data->name,
+            'currency' => $data->currency,
+            'price' => $data->price,
+            'close' => $data->close_yesterday,
+            'change' => $data->day_change,
+            'count' => $stock->share_count,
         ];
     }
 

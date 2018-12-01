@@ -28,8 +28,8 @@
                                 <tr class="stock_record rounded">
                                     <td>{{$stock['symbol']}}</td>
                                     <td>{{$stock['price']}}</td>
-                                    <td>{{$stock['close_yesterday']}}</td>
-                                    <td>{{$stock['day_change']}}</td>
+                                    <td>{{$stock['close']}}</td>
+                                    <td>{{$stock['change']}}</td>
                                 </tr>
                             @endforeach
                         </tbody>

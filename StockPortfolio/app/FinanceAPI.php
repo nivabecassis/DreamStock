@@ -2,15 +2,17 @@
 
 namespace App;
 
-use App\ApiUri;
-
-class FinanceAPI 
+/**
+ * Class used for querying worldtradingdata API
+ * @package App
+ */
+class FinanceAPI
 {
     /**
      * Gets stock info for all tickers
      *
-     * @param $tickers Companies to get quotes from
-     * @return json object
+     * @param $tickers Companies to get stock information for
+     * @return associativeArray object
      */
     public static function getAllStockInfo(array $tickers)
     {
@@ -25,4 +27,3 @@ class FinanceAPI
         return json_decode($strJson, true);
     }
 }
-

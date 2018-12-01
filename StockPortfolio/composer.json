@@ -32,6 +32,11 @@
         }
     },
     "autoload": {
+        "files": [
+            "app/ApiUri.php",
+            "app/CurrencyConverter.php",
+            "app/FinanceAPI.php"
+        ],
         "psr-4": {
             "App\\": "app/"
         },

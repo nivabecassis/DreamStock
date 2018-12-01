@@ -24,9 +24,10 @@ class Portfolio_StockController extends Controller
 
     public function quotes(Request $request)
     {
-        $allQuotes = json_decode(FinanceAPI::getAllStockInfo($request->input("tickers")));
-        return view('buying_stocks.quotes', [
-            'quotes' => $allQuotes,
+        $allQuotes = FinanceAPI::getAllStockInfo(explode(",", $request->input("ticker_symbol")));
+        // Need to display quotes
+        return view("buying_stocks.get_quotes", [
+            'quotes' => $allQuotes
         ]);
     }
 
@@ -35,25 +36,47 @@ class Portfolio_StockController extends Controller
      *
      * @param Request $request
      */
-    function purchaseStock(Request $request)
+    function purchaseStock(Request $request, $symbol)
     {
-        /* Haven't tested */
 
         $user = Auth::user();
         $stocks = $user->portfolios->portfolio_stocks;
+        $stockInfo = FinanceAPI::getAllStockInfo(explode(",", $symbol));
+        $shares = $request->input("shares");
 
-        if ($this->canBuyShares($request) && $stocks->ticker_symbol->count() < 5)
+
+        if ($this->canBuyShares($stockInfo, $shares))
         {
-            /* Create new record and set fields */
-            $portfolio_stock = new Portfolio_Stock();
-            $portfolio_stock->ticker_symbol = $request->input("ticker_symbol");
-            $portfolio_stock->portfolio_id = $user->portfolios->id;
-            $portfolio_stock->share_count = $request->input("share_count");
-            $portfolio_stock->purchase_date = date("Y-m-d H:i:s");
-            $portfolio_stock->purchase_price = $this->getPurchasePrice($request);
-            $portfolio_stock->save();
+            $purchasePrice = $this->getPurchasePrice($stockInfo, $shares);
+
+            /*
+             * Stock is successfully being saved to the database but for some reason, there
+             * user's cash isn't decreasing in the database. Need to find out how to update
+             */
+            $user->portfolios->cash_owned -= 10;
+            $user->portfolios->cash_owned -= $purchasePrice;
+
+            if ($stocks->count() < 5)
+            {
+                /* Create new record and set fields */
+                $portfolio_stock = new Portfolio_Stock();
+                $portfolio_stock->ticker_symbol = $symbol;
+                $portfolio_stock->portfolio_id = $user->portfolios->id;
+                $portfolio_stock->share_count = $shares;
+                $portfolio_stock->purchase_date = date("Y-m-d H:i:s");
+                $portfolio_stock->purchase_price = $purchasePrice;
+                $portfolio_stock->save();
+            }
+
+            else
+            {
+                $this->updateStock($symbol, $shares);
+            }
 
         }
+
+        // *ISSUE* all quotes the user got will be gone when redirected
+        return redirect("/home");
     }
 
     /**
@@ -61,25 +84,22 @@ class Portfolio_StockController extends Controller
      *
      * @param Request $request
      */
-    function updateStock(Request $request)
+    function updateStock($stockInfo, $shares)
     {
         /* Haven't tested */
+        $user = Auth::user();
 
-        if ($this->canBuyShares($request))
-        {
-            $user = Auth::user();
+        // Transaction fee
+        $user->portfolios->cash_owned -= 10;
 
-            // Transaction fee
-            $user->portfolios->cash_owned -= 10;
+        // Subtract price of purchasing shares
+        $user->portfolios->cash_owned -= $this->getPurchasePrice($stockInfo, $shares);
+        $portfolio_stock = $user->portfolios->portfolio_stocks->where(
+            "ticker_symbol", "=", $stockInfo["data"][0]["symbol"]);
 
-            // Subtract price of purchasing shares
-            $user->portfolios->cash_owned -= $this->getPurchasePrice($request);
-            $portfolio_stock = $user->portfolios->portfolio_stocks->where(
-                "ticker_symbol", "=", $request->input("ticker_symbol"));
+        $portfolio_stock[0]->share_count += $shares;
+        $portfolio_stock->save();
 
-            $portfolio_stock->share_count += $request->input("share_count");
-            $portfolio_stock->save();
-        }
     }
 
     /**
@@ -88,35 +108,32 @@ class Portfolio_StockController extends Controller
      * @param Request $request
      * @return bool Whether user can buy or not
      */
-    private function canBuyShares(Request $request)
+    private function canBuyShares($stockInfo, $shares)
     {
         $user = Auth::user();
         $stocks = $user->portfolios->portfolio_stocks;
-        $converter = new CurrencyConverter();
-        $stockCount = $stocks->ticker_symbol->count();
+        $stockCount = $stocks->where("portfolio_id", "=", $user->portfolios->id)->count();
 
         /*
          * If the user already has 5 stocks and the one they're trying to purchase shares from
          * isn't one of the stocks that they already own, they cannot buy the stock
          */
         if ($stockCount === 5 && !$user->portfolios->where("ticker_symbol", "=",
-                $request->input("ticker_symbol")->exists()))
+                $stockInfo["data"][0]["symbol"])->exists())
         {
             return false;
         }
 
-        $stockInfo = json_decode(FinanceAPI::getAllStockInfo($request->input("ticker_symbol")));
-        $priceUSD = $converter->convertToUSD($stockInfo->data["currency"], $stockInfo->data["price"]);
+        $priceUSD = CurrencyConverter::convertToUSD($stockInfo["data"][0]["currency"], $stockInfo["data"][0]["price"]);
 
-        if ($user->portfolios->cash_owned - 10 >= $priceUSD * $request->input("share_count"))
-        {
+        if ($user->portfolios->cash_owned - 10 >= $priceUSD * $shares) {
             return true;
-        }
-
-        else
-        {
+        } else {
             return false;
         }
+
+        // This will be the case when the user can update
+        return true;
     }
 
     /**
@@ -125,10 +142,9 @@ class Portfolio_StockController extends Controller
      * @param Request $request
      * @return float|int Price
      */
-    private function getPurchasePrice(Request $request)
+    private function getPurchasePrice($stockInfo, $shares)
     {
         // How much purchasing the shares costs
-        $stockInfo = json_decode(FinanceAPI::getAllStockInfo($request->input("ticker_symbol")));
-        return $stockInfo->data["price"] * $request->input("share_count");
+        return $stockInfo["data"][0]["price"] * $shares;
     }
 }

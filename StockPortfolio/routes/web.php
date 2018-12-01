@@ -19,3 +19,5 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/home', 'PortfolioController@index')->name('portfolio');
+Route::post('/home', "Portfolio_StockController@quotes");
+Route::post('/home/{symbol}', 'Portfolio_StockController@purchaseStock');

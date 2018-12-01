@@ -26,9 +26,10 @@ class PortfolioController extends Controller
         // Get portfolio value
         $portfolioValue = $this->getPortfolioValue($user);
 
-        return view('home', [
-            'portfolioValue' => $portfolioValue,
-        ]);
+//        return view('home', [
+//            'portfolioValue' => $portfolioValue,
+//        ]);
+        return view('buying_stocks.get_quotes');
     }
 
     /**

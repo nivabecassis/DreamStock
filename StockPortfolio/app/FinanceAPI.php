@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\ApiUri;
+
 /**
  * Class used for querying worldtradingdata API
  * @package App
@@ -12,9 +14,9 @@ class FinanceAPI
      * Gets stock info for all tickers
      *
      * @param $tickers Companies to get stock information for
-     * @return json object
+     * @return associativeArray object
      */
-    static function getAllStockInfo(array $tickers)
+    public static function getAllStockInfo(array $tickers)
     {
         $symbols = "?symbol=";
         $apiKey = "&api_token=" . APIKEY;
@@ -22,6 +24,8 @@ class FinanceAPI
             $symbols .= $ticker . ",";
         }
         $symbols = substr($symbols, 0 , strlen($symbols ) - 1);
-        return file_get_contents(WORLDTRADINGDATA . $symbols . $apiKey);
+        $strJson = file_get_contents(WORLDTRADINGDATA . $symbols . $apiKey);
+
+        return json_decode($strJson, true);
     }
 }

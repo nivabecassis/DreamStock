@@ -4,9 +4,8 @@
     <div class="container">
         <div class="row justify-content-center mb-3">
             <div class="header">
-                <div class="m-2 d-inline ">Your Portfolio</div>
-                <div class="m-2 d-inline">Balance: {{$portfolio['cash']}}</div>
-                <div class="m-2 d-inline">Member since: {{$user->timestamps}}</div>
+                <div class="m-2 d-inline">Balance: ${{$portfolio['cash']}}</div>
+                <div class="m-2 d-inline">Member since: {{$since}}</div>
                 <div class="m-2 d-inline">Current value: {{$portfolio['value']}}</div>
                 <div class="m-2 d-inline">Last close value: {{$portfolio['closeValue']}}</div>
             </div>
@@ -22,6 +21,7 @@
                             <th scope="col">Previous Close</th>
                             <th scope="col">Change (%)</th>
                             <th scope="col">Owned</th>
+                            <th scope="col">Actions</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -35,7 +35,7 @@
                                     <td>
                                         <form action="{{ url('/home/'.$stock['id']) }}" method="POST">
                                             {{ csrf_field() }}
-                                            <div class="form-group">
+                                            <div class="form-group p-2">
                                                 <button type="submit" id="buy-stock-{{ $stock['id'] }}" class="btn d-inline">
                                                     <i class="fa fa-plus"></i> Buy
                                                 </button>

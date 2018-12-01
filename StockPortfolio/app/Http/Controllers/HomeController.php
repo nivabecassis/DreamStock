@@ -69,6 +69,7 @@ class HomeController extends Controller
             'user' => $user,
             'portfolio' => $portfolioDetails,
             'stocks' => $stocks,
+            'since' => self::getDateFromTimestamp($user->created_at),
         ];
     }
 
@@ -187,6 +188,16 @@ class HomeController extends Controller
             $data['close_yesterday'] = $lastClose;
             $data['currency'] = "USD";
         }
+    }
+
+    /**
+     * Extracts the date from a timestamp.
+     * @param $tm string timestamp to extract from
+     * @return string date
+     */
+    public static function getDateFromTimestamp($tm) {
+        $pos = strpos($tm, ' ');
+        return substr($tm, 0, $pos);
     }
 
 }

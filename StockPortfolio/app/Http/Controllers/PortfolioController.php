@@ -21,10 +21,16 @@ class PortfolioController extends Controller
 
     public function index()
     {
+        // Gets current authenticated user
+        $user = Auth::user();
+
         // Loads metadata
-        $json = $this->loadMetadata();
+        $json = $this->loadMetadata($user);
         $data = $json['info']['data'];
         $tickers = $json['tickers'];
+
+        // Gets user's balance
+        $balance = $this->getBalance($user);
 
         // Gets current portfolio value
         $portfolioValue = $this->getPortfolioValue($data, $tickers);
@@ -33,6 +39,7 @@ class PortfolioController extends Controller
         $portfolioLastCloseValue = $this->getPortfolioLastCloseValue($data, $tickers);
 
         return view('home', [
+            'balance' => $balance,
             'portfolioValue' => $portfolioValue,
             'portfolioLastCloseValue' => $portfolioLastCloseValue,
         ]);
@@ -73,13 +80,12 @@ class PortfolioController extends Controller
     /**
      * Gets user balance
      *
-     * @param user Authenticated user
-     * @return cash_owned
+     * @param json Json object of authenticated user's metadata 
+     * @return balance User's balance
      */
-    public function getBalance($user)
+    public function getBalance($json)
     {
-        // Not sure if this works properly yet
-        return $user->portfolios->cash_owned;
+        return $json->portfolios->cash_owned;
     }
 
     /**
@@ -87,11 +93,8 @@ class PortfolioController extends Controller
      * 
      * @return array Array which contains stock information and tickers 
      */
-    private function loadMetadata()
+    private function loadMetadata($user)
     {
-        // Gets current authenticated user
-        $user = Auth::user();
-
         // Gets authenticated user's metadatas
         $user->portfolios->portfolio_stocks;
 

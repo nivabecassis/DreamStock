@@ -13,6 +13,7 @@
                         </div>
                     @endif
                     <div>   
+                        <p>Balance: {{ $balance }} $USD</p>
                         <p>Portfolio value: {{ $portfolioValue }} $USD</p>
                         <p>Portfolio last close value: {{ $portfolioLastCloseValue }} $USD</p>
                     </div>  

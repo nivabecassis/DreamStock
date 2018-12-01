@@ -35,14 +35,29 @@ class PortfolioController extends Controller
         // Gets current portfolio value
         $portfolioValue = $this->getPortfolioValue($data, $tickers);
 
-        // Gets last close portfolio value
+        // Gets last daily close portfolio value
         $portfolioLastCloseValue = $this->getPortfolioLastCloseValue($data, $tickers);
+
+        // Gets percentage change between current and last daily close portfolio value
+        $percentageChange = $this->getPercentageChange($portfolioValue, $portfolioLastCloseValue);
 
         return view('home', [
             'balance' => $balance,
             'portfolioValue' => $portfolioValue,
             'portfolioLastCloseValue' => $portfolioLastCloseValue,
+            'percentageChange' => $percentageChange,
         ]);
+    }
+
+    /**
+     * Gets user balance
+     *
+     * @param json Json object of authenticated user's metadata 
+     * @return balance User's balance
+     */
+    public function getBalance($json)
+    {
+        return $json->portfolios->cash_owned;
     }
 
     /**
@@ -68,9 +83,9 @@ class PortfolioController extends Controller
      * @param array Array of ticker symbols
      * @return totalLastCloseValue Sum of all last close portfolio value
      */
-    public function getPortfolioLastCloseValue($data, $tickers) 
+    public function getPortfolioLastCloseValue($data, $tickers)
     {
-        // Gets all user's last close price for each company
+        // Gets all user's last daily close price for each company
         $prices = $this->getAllLastClosePrices($data, $tickers);
 
         // Returns sum of all prices
@@ -78,14 +93,15 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Gets user balance
-     *
-     * @param json Json object of authenticated user's metadata 
-     * @return balance User's balance
+     * Gets percentage change between current and last daily close portfolio value
+     * 
+     * @param decimal Current portfolio value
+     * @param decimal Last daily close portfolio value
+     * @return decimal Percentage change
      */
-    public function getBalance($json)
+    public function getPercentageChange($current, $lastClose) 
     {
-        return $json->portfolios->cash_owned;
+        return (($lastClose - $current) / $current) * 100;
     }
 
     /**
@@ -128,6 +144,7 @@ class PortfolioController extends Controller
     }
 
     /**
+     * Current portfolio value
      * Stores total price of each company in an array
      * 
      * @param array Assoc array containing stock information from API
@@ -149,6 +166,7 @@ class PortfolioController extends Controller
     }
 
     /**
+     * Last daily close portfolio value
      * Stores total price of each company in an array
      * 
      * @param array Assoc array containing stock information from API

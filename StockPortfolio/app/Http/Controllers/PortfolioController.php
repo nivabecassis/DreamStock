@@ -101,7 +101,7 @@ class PortfolioController extends Controller
      */
     public function getPercentageChange($current, $lastClose) 
     {
-        return (($lastClose - $current) / $current) * 100;
+        return number_format((($lastClose - $current) / $current) * 100, 3); // 3 values after decimal point
     }
 
     /**

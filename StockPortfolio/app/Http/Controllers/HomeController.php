@@ -122,7 +122,7 @@ class HomeController extends Controller
     {
         $shareCounts = array();
         foreach ($stocks as $stock) {
-            $shareCounts[$stock['symbol']] = $stocks['count'];
+            $shareCounts[$stock['symbol']] = $stock['count'];
         }
         return $shareCounts;
     }
@@ -144,7 +144,7 @@ class HomeController extends Controller
             'company' => $data['name'],
             'currency' => $data['currency'],
             'price' => $data['price'],
-            'close' => $data['close_yesterday'],
+            'close_yesterday' => $data['close_yesterday'],
             'change' => $data['day_change'],
         ];
     }

@@ -21,6 +21,7 @@
                             <th scope="col">Price</th>
                             <th scope="col">Previous Close</th>
                             <th scope="col">Change (%)</th>
+                            <th scope="col">Owned</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -28,20 +29,21 @@
                                 <tr class="stock_record rounded">
                                     <td>{{$stock['symbol']}}</td>
                                     <td>{{$stock['price']}}</td>
-                                    <td>{{$stock['close']}}</td>
+                                    <td>{{$stock['close_yesterday']}}</td>
                                     <td>{{$stock['change']}}</td>
+                                    <td>{{$stock['count']}}</td>
                                     <td>
-                                        <form action="{{ url('/home/'.$stock->id) }}" method="POST">
+                                        <form action="{{ url('/home/'.$stock['id']) }}" method="POST">
                                             {{ csrf_field() }}
                                             <div class="form-group">
-                                                <button type="submit" id="buy-stock-{{ $stock->id }}" class="btn btn-block">
+                                                <button type="submit" id="buy-stock-{{ $stock['id'] }}" class="btn d-inline">
                                                     <i class="fa fa-plus"></i> Buy
                                                 </button>
-                                                <button type="submit" id="sell-stock-{{ $stock->id }}" class="btn btn-block">
+                                                <button type="submit" id="sell-stock-{{ $stock['id'] }}" class="btn d-inline">
                                                     <i class="fa fa-plus"></i> Sell
                                                 </button>
-                                                <input type="number" id="share-count-{{ $stock->id }}" class="form-control"
-                                                    placeholder="300" required>
+                                                <input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"
+                                                    placeholder="{{ $stock['count'] }}" required>
                                             </div>
                                         </form>
                                     </td>

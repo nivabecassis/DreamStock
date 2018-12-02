@@ -13,7 +13,6 @@
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
-                    {{var_dump($stocks, $stocks[0]['id'])}}
                     <table class="table-borderless">
                         <thead>
                         <tr>
@@ -26,34 +25,85 @@
                         </tr>
                         </thead>
                         <tbody>
-                            @foreach($stocks as $stock)
-                                <tr class="stock_record rounded">
-                                    <td>{{$stock['symbol']}}</td>
-                                    <td>{{$stock['price']}}</td>
-                                    <td>{{$stock['close_yesterday']}}</td>
-                                    <td>{{$stock['change']}}</td>
-                                    <td>{{$stock['count']}}</td>
-                                    <td>
-                                        <form action="{{ url('/home/sell/'.$stock['id']) }}" method="POST">
-                                            {{ csrf_field() }}
-                                            <div class="form-group p-2">
-                                                <button type="submit" id="buy-stock-{{ $stock['id'] }}" class="btn d-inline">
-                                                    <i class="fa fa-plus"></i> Buy
-                                                </button>
-                                                <button type="submit" id="sell-stock-{{ $stock['id'] }}" class="btn d-inline">
-                                                    <i class="fa fa-plus"></i> Sell
-                                                </button>
-                                                <input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"
-                                                    placeholder="{{ $stock['count'] }}" required name="share-count-{{ $stock['id'] }}">
-                                            </div>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
+                        @foreach($stocks as $stock)
+                            <tr class="stock_record rounded">
+                                <td>{{$stock['symbol']}}</td>
+                                <td>{{$stock['price']}}</td>
+                                <td>{{$stock['close_yesterday']}}</td>
+                                <td>{{$stock['change']}}</td>
+                                <td>{{$stock['count']}}</td>
+                                <td>
+                                    <form action="{{ url('/home/transaction/'.$stock['id']) }}" method="GET">
+                                        <div class="form-group p-2">
+                                            <button type="submit" id="buy-stock-{{ $stock['id'] }}"
+                                                    class="btn d-inline" name="type" value="buy">
+                                                <i class="fa fa-plus"></i> Buy
+                                            </button>
+                                            <button type="submit" id="sell-stock-{{ $stock['id'] }}"
+                                                    class="btn d-inline" name="type" value="sell">
+                                                <i class="fa fa-plus"></i> Sell
+                                            </button>
+                                            {{--<input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"--}}
+                                            {{--placeholder="{{ $stock['count'] }}" required--}}
+                                            {{--name="share-count-{{ $stock['id'] }}">--}}
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+        @if(isset($stockToSell))
+            <div class="mt-4">
+                <h3>Selling Stock: {{$stockToSell['symbol']}}</h3>
+                <div class="card">
+                    <table class="table-borderless">
+                        <thead>
+                        <tr>
+                            <th scope="col">Symbol</th>
+                            <th scope="col">Current Ask Price (USD)</th>
+                            @if($stockToSell['currency'] != 'USD')
+                                <th scope="col">Current Ask Price ({{ $stockToSell['currency'] }})</th>
+                            @endif
+                            <th scope="col">Transaction fee</th>
+                            <th scope="col">Amount To Sell</th>
+                            <th scope="col">Total (USD)</th>
+                            <th scope="col">Perform</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="stock_record rounded">
+                            <td scope="col">{{$stockToSell['symbol']}}</td>
+                            {{--                            <td scope="col">{{$stockToSell['price_usd']}}</td>--}}
+                            <td scope="col">{{$stockToSell['price']}}</td>
+                            @if($stockToSell['currency'] != 'USD')
+                                <td scope="col">{{$stockToSell['origPrice']}}</td>
+                            @endif
+                            <td scope="col">{{ \Config::get('constants.options.TRANSACT_COST') }}</td>
+
+                            <td scope="col">
+                                <form action="{{ url('/home/sell/'.$stock['id']) }}" method="POST">
+                                    {{ csrf_field() }}
+                                    <input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"
+                                           placeholder="{{ $stock['count'] }}" required
+                                           name="share_count_{{ $stock['id'] }}">
+                                </form>
+                            </td>
+                            <td scope="col">Total placeholder</td>
+                            <td>
+                                <button type="submit" id="sell-stock-{{ $stock['id'] }}"
+                                        class="btn d-inline">
+                                    <i class="fa fa-plus"></i> Sell
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
     </div>
 @endsection

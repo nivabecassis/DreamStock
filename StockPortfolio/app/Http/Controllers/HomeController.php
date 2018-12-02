@@ -23,16 +23,50 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    public function transaction(Request $request, $stockId)
+    {
+        $type = $this->sanitize($request->input('type'));
+        if (isset($type)) {
+            if (strtolower($type) === 'sell') {
+                $data = $this->getDataForView();
+                $data['stockToSell'] = $this->getStockFromStocks($stockId, $data['stocks']);
+                return view('home', $data);
+            } else if (strtolower($type) === 'buy') {
+                // TODO: Austin's stuff
+            }
+        }
+        // TODO: make this view (maybe 404)
+        return view('error');
+    }
+
+    private function getStockFromStocks($stockId, $stocks)
+    {
+        foreach ($stocks as $stock) {
+            if ($stock['id'] == $stockId) {
+                return $stock;
+            }
+        }
+    }
+
     /**
      * Sells the user's given stock if permitted.
      *
      * @param Request $request
      * @param $stockid
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function sell(Request $request, $stockid)
+    public function sell(Request $request)
     {
-        $data = $request->input('share-count-'.$stockid);
-        var_dump($request, $stockid, $data);
+        $stockid = $request->input('stock');
+        return var_dump($stockid);
+//        $sellCount = $request->input('share-count-'.$stockid);
+        $data = $this->getDataForView();
+//        $data['sellCount'] = $sellCount;
+//        $data['requested_sell_id'] = $stockid;
+        $data['stockToSell'] = $data['stocks'][$stockid];
+        // TODO: keep original currency -> add field in change currency to usd so that both are kept
+//        return var_dump($data);
+        return view('home', $data);
     }
 
     /**
@@ -86,12 +120,13 @@ class HomeController extends Controller
      * @param $stocksData
      * @return array
      */
-    private function getStocksInfo($dbStocks, $stocksData) {
+    private function getStocksInfo($dbStocks, $stocksData)
+    {
         $stocks = array();
         foreach ($dbStocks as $dbStock) {
             foreach ($stocksData as $data) {
                 // Matching data from API and from database
-                if($dbStock->ticker_symbol === $data['symbol']) {
+                if ($dbStock->ticker_symbol === $data['symbol']) {
                     // Updated stock object with all the data needed
                     $stock = $this->keepNecessaryInfo($dbStock, $data);
                     // Convert all the pricing to USD
@@ -203,9 +238,17 @@ class HomeController extends Controller
      * @param $tm string timestamp to extract from
      * @return string date
      */
-    public static function getDateFromTimestamp($tm) {
+    public static function getDateFromTimestamp($tm)
+    {
         $pos = strpos($tm, ' ');
         return substr($tm, 0, $pos);
+    }
+
+    private function sanitize($str)
+    {
+        $str = strip_tags($str);
+        $str = htmlentities($str);
+        return $str;
     }
 
 }

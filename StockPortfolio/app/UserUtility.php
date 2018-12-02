@@ -60,7 +60,7 @@ class UserUtility
      * @return bool True if the transaction should be permitted,
      * false otherwise.
      */
-    private static function canAffordTransaction($user, $amount)
+    public static function canAffordTransaction($user, $amount)
     {
         return $user->portfolios->cash_owned + $amount
             - Config::get('constants.options.TRANSACT_COST') >= 0;

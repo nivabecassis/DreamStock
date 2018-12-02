@@ -1,0 +1,16 @@
+<?php
+/**
+ * File contains any constants needed in the application.
+ *
+ * Created by PhpStorm.
+ * User: nivabecassis
+ * Date: 2018-12-01
+ * Time: 8:33 PM
+ */
+
+
+return [
+   'options' => [
+       'TRANSACT_COST' => 10,
+   ],
+];

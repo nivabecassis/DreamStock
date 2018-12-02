@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Portfolio_Stock;
+use App\UserUtility;
 use Auth;
 use App\FinanceAPI;
 use App\CurrencyConverter;

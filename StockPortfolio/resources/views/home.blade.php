@@ -6,8 +6,8 @@
             <div class="header">
                 <div class="m-2 d-inline">Balance: ${{$portfolio['cash']}}</div>
                 <div class="m-2 d-inline">Member since: {{$since}}</div>
-                <div class="m-2 d-inline">Current value: {{$portfolio['value']}}</div>
-                <div class="m-2 d-inline">Last close value: {{$portfolio['closeValue']}}</div>
+                <div class="m-2 d-inline">Current value: ${{$portfolio['value']}}</div>
+                <div class="m-2 d-inline">Last close value: ${{$portfolio['closeValue']}}</div>
             </div>
         </div>
         <div class="row justify-content-center">

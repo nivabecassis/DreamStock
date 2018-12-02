@@ -81,7 +81,8 @@ class HomeController extends Controller
 
         if (!$authorized) {
             // TODO: make this view
-            return view('error');
+            return "false";
+//            return view('error');
         }
 
         return redirect()->route('home', $data);

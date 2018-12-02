@@ -74,16 +74,10 @@ class HomeController extends Controller
         $shareCount = $request->input('share_count');
 
         // Execute the sale, validation is done within this function
-        $authorized = UserUtility::sellShares($user, $symbol, $shareCount);
+        UserUtility::sellShares($user, $symbol, $shareCount);
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();
-
-        if (!$authorized) {
-            // TODO: make this view
-            return "false";
-//            return view('error');
-        }
 
         return redirect()->route('home', $data);
     }

@@ -59,9 +59,8 @@
         @if(isset($stockToSell))
             <div class="mt-4">
                 <h3>Selling Stock: {{$stockToSell['symbol']}}</h3>
-                <form action="{{ url('/home/sell/'.$stock['id']) }}" method="POST">
+                <form action="{{ url('/home/transaction/sell/'.$stock['id']) }}" method="POST">
                     <div class="card">
-
                         {{ csrf_field() }}
                         <table class="table-borderless">
                             <thead>

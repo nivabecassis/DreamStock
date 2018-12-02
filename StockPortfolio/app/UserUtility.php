@@ -9,6 +9,7 @@
 namespace App;
 
 use \Config;
+use App\FinanceAPI;
 
 /**
  * Class UserUtility provides user related actions through the use
@@ -18,6 +19,60 @@ use \Config;
  */
 class UserUtility
 {
+
+    /**
+     * Sells the specified share count of the user if the transaction
+     * is authenticated.
+     *
+     * @param $user User
+     * @param $stockId Int stock id of the share that needs to be sold
+     * @param $count Int number of shares that will be sold
+     * @return bool True if the sale was allowed, false otherwise
+     */
+    public static function sellShares($user, $stockId, $count) {
+        $stock = self::findMatchingStock($user, $stockId);
+        $ownedShares = $stock->share_count;
+        if($ownedShares > 0 && $ownedShares >= $count) {
+            $stock->share_count -= $count;
+            $amount = self::calcTotalStockValue($stock, $count);
+            if(self::performTransaction($user, $amount)) {
+                // Transaction approved and executed
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Calculate the total stock value for a given stock. Pulls the
+     * most recent price of the stock from the FinanceAPI class.
+     *
+     * @param $stock Stock
+     * @param $count Int number of stocks
+     * @return float|int Total value of the stocks
+     */
+    public static function calcTotalStockValue($stock, $count) {
+        $data = FinanceAPI::getAllStockInfo([$stock['ticker']]);
+        $price = $data['price'];
+        return $price * $count;
+    }
+
+    /**
+     * Finds the matching stock according to its id.
+     *
+     * @param $user User
+     * @param $stockId Int id of the stock to find
+     * @return null if the stock is not found, Portfolio_Stock otherwise
+     */
+    public static function findMatchingStock($user, $stockId) {
+        $stocks = $user->portfolios->portfolio_stocks;
+        foreach($stocks as $stock) {
+            if($stock->id == $stockId) {
+                return $stock;
+            }
+        }
+        return null;
+    }
 
     /**
      * Gets the user's balance.

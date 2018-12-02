@@ -31,7 +31,7 @@ class User extends Authenticatable
     /**
      * Gets all the portfolios for the user
      * 
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function portfolios()
     {

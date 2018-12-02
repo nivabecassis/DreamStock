@@ -79,7 +79,6 @@
                             <tbody>
                             <tr class="stock_record rounded">
                                 <td scope="col">{{$stockToSell['symbol']}}</td>
-                                {{--                            <td scope="col">{{$stockToSell['price_usd']}}</td>--}}
                                 <td scope="col">{{$stockToSell['price']}}</td>
                                 @if($stockToSell['currency'] != 'USD')
                                     <td scope="col">{{$stockToSell['origPrice']}}</td>
@@ -87,7 +86,7 @@
                                 <td scope="col">{{ \Config::get('constants.options.TRANSACT_COST') }}</td>
                                 <td>
                                     <input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"
-                                           placeholder="{{ $stock['count'] }}" required
+                                           placeholder="{{ $stockToSell['count'] }}" required
                                            name="share_count">
                                 </td>
                                 <td scope="col">Total placeholder</td>

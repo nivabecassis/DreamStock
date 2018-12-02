@@ -67,7 +67,12 @@ class HomeController extends Controller
         $data = $this->getDataForView();
 
         // Execute the sale, validation is done within this function
-        // self::sellShares($user, $stockId, $shareCount);
+        $authorized = UserUtility::sellShares($user, $stockId, $shareCount);
+
+        if(!$authorized) {
+            // TODO: make this view
+            return view('error');
+        }
 
         return redirect()->route('home', $data);
     }

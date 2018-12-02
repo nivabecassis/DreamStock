@@ -10,6 +10,7 @@ namespace App;
 
 use \Config;
 use App\FinanceAPI;
+use App\CurrencyConverter;
 
 /**
  * Class UserUtility provides user related actions through the use
@@ -33,10 +34,11 @@ class UserUtility
         $stock = self::findMatchingStock($user, $stockId);
         $ownedShares = $stock->share_count;
         if($ownedShares > 0 && $ownedShares >= $count) {
-            $stock->share_count -= $count;
             $amount = self::calcTotalStockValue($stock, $count);
             if(self::performTransaction($user, $amount)) {
                 // Transaction approved and executed
+                $stock->share_count -= $count;
+                $stock->save();
                 return true;
             }
         }
@@ -52,8 +54,12 @@ class UserUtility
      * @return float|int Total value of the stocks
      */
     public static function calcTotalStockValue($stock, $count) {
-        $data = FinanceAPI::getAllStockInfo([$stock['ticker']]);
+        $data = FinanceAPI::getAllStockInfo([$stock['ticker_symbol']])['data'][0];
+        $currency = $data['currency'];
         $price = $data['price'];
+        if($currency !== 'USD') {
+            $price = CurrencyConverter::convertToUSD($currency, $price);
+        }
         return $price * $count;
     }
 
@@ -67,7 +73,8 @@ class UserUtility
     public static function findMatchingStock($user, $stockId) {
         $stocks = $user->portfolios->portfolio_stocks;
         foreach($stocks as $stock) {
-            if($stock->id == $stockId) {
+            if($stock->id - 1 == $stockId) {
+                // id - 1 to compensate for SQL index starting at 1
                 return $stock;
             }
         }

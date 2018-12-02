@@ -47,16 +47,15 @@ class Portfolio_StockController extends Controller
 
         if ($this->canBuyShares($stockInfo, $shares))
         {
-            $purchasePrice = $this->getPurchasePrice($stockInfo, $shares);
-
             /*
              * Stock is successfully being saved to the database but for some reason, there
              * user's cash isn't decreasing in the database. Need to find out how to update
              */
             $user->portfolios->cash_owned -= 10;
-            $user->portfolios->cash_owned -= $purchasePrice;
+            $user->portfolios->cash_owned -= $this->getPurchasePrice($stockInfo, $shares);
 
-            if ($stocks->count() < 5)
+            if ($stocks->count() < 5 && !$user->portfolios->portfolio_stocks
+                ->where("ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first())
             {
                 /* Create new record and set fields */
                 $portfolio_stock = new Portfolio_Stock();
@@ -64,15 +63,20 @@ class Portfolio_StockController extends Controller
                 $portfolio_stock->portfolio_id = $user->portfolios->id;
                 $portfolio_stock->share_count = $shares;
                 $portfolio_stock->purchase_date = date("Y-m-d H:i:s");
-                $portfolio_stock->purchase_price = $purchasePrice;
+                $portfolio_stock->purchase_price = $stockInfo["data"][0]["price"];
                 $portfolio_stock->save();
+            }
+
+            elseif ($stocks->count() <= 5 && $user->portfolios->portfolio_stocks
+                    ->where("ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first())
+            {
+                $this->updateStock($stockInfo, $shares);
             }
 
             else
             {
-                $this->updateStock($symbol, $shares);
+                redirect("/home");
             }
-
         }
 
         // *ISSUE* all quotes the user got will be gone when redirected
@@ -95,9 +99,10 @@ class Portfolio_StockController extends Controller
         // Subtract price of purchasing shares
         $user->portfolios->cash_owned -= $this->getPurchasePrice($stockInfo, $shares);
         $portfolio_stock = $user->portfolios->portfolio_stocks->where(
-            "ticker_symbol", "=", $stockInfo["data"][0]["symbol"]);
+            "ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first();
 
-        $portfolio_stock[0]->share_count += $shares;
+        $portfolio_stock->share_count += $shares;
+        $user->portfolios->save();
         $portfolio_stock->save();
 
     }
@@ -119,7 +124,7 @@ class Portfolio_StockController extends Controller
          * isn't one of the stocks that they already own, they cannot buy the stock
          */
         if ($stockCount === 5 && !$user->portfolios->where("ticker_symbol", "=",
-                $stockInfo["data"][0]["symbol"])->exists())
+                $stockInfo["data"][0]["symbol"])->first())
         {
             return false;
         }

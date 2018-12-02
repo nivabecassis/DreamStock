@@ -37,10 +37,10 @@
             <table class="table-borderless">
                 <thead>
                 <tr class="stock_record rounded">
-                    <th style="margin-right: 50px" scope="col">Company symbol</th>
-                    <th style="margin-right: 50px" scope="col">Company name</th>
-                    <th style="margin-right: 50px" scope="col">Shares</th>
-                    <th style="margin-right: 50px" scope="col">Price</th>
+                    <th scope="col">Company symbol</th>
+                    <th scope="col">Company name</th>
+                    <th scope="col">Shares</th>
+                    <th scope="col">Price</th>
                 </tr>
                 </thead>
 
@@ -48,10 +48,10 @@
                 @foreach ($quotes["data"] as $quote)
 
                     <tr>
-                        <td style="margin-right: 50px">{{$quote["symbol"]}}</td>
-                        <td style="margin-right: 50px">{{$quote["name"]}}</td>
-                        <td style="margin-right: 50px">{{$quote["shares"]}}</td>
-                        <td style="margin-right: 50px">{{$quote["price"]}}</td>
+                        <td>{{$quote["symbol"]}}</td>
+                        <td>{{$quote["name"]}}</td>
+                        <td>{{$quote["shares"]}}</td>
+                        <td>{{$quote["price"]}}</td>
                         <td>
                             <form action={{url("/home/" . $quote["symbol"])}} method="POST">
                                 {{ csrf_field() }}

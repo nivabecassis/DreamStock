@@ -33,8 +33,8 @@
                                 <td>{{$stock['change']}}</td>
                                 <td>{{$stock['count']}}</td>
                                 <td>
-                                    <form action="{{ url('/home/transaction/'.$stock['id']) }}" method="GET">
-                                        <div class="form-group p-2">
+                                    <div class="form-group p-2">
+                                        <form action="{{ url('/home/transaction/'.$stock['id']) }}" method="GET">
                                             <button type="submit" id="buy-stock-{{ $stock['id'] }}"
                                                     class="btn d-inline" name="type" value="buy">
                                                 <i class="fa fa-plus"></i> Buy
@@ -46,8 +46,8 @@
                                             {{--<input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"--}}
                                             {{--placeholder="{{ $stock['count'] }}" required--}}
                                             {{--name="share-count-{{ $stock['id'] }}">--}}
-                                        </div>
-                                    </form>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -59,50 +59,51 @@
         @if(isset($stockToSell))
             <div class="mt-4">
                 <h3>Selling Stock: {{$stockToSell['symbol']}}</h3>
-                <div class="card">
-                    <table class="table-borderless">
-                        <thead>
-                        <tr>
-                            <th scope="col">Symbol</th>
-                            <th scope="col">Current Ask Price (USD)</th>
-                            @if($stockToSell['currency'] != 'USD')
-                                <th scope="col">Current Ask Price ({{ $stockToSell['currency'] }})</th>
-                            @endif
-                            <th scope="col">Transaction fee</th>
-                            <th scope="col">Amount To Sell</th>
-                            <th scope="col">Total (USD)</th>
-                            <th scope="col">Perform</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="stock_record rounded">
-                            <td scope="col">{{$stockToSell['symbol']}}</td>
-                            {{--                            <td scope="col">{{$stockToSell['price_usd']}}</td>--}}
-                            <td scope="col">{{$stockToSell['price']}}</td>
-                            @if($stockToSell['currency'] != 'USD')
-                                <td scope="col">{{$stockToSell['origPrice']}}</td>
-                            @endif
-                            <td scope="col">{{ \Config::get('constants.options.TRANSACT_COST') }}</td>
+                <form action="{{ url('/home/sell/'.$stock['id']) }}" method="POST">
+                    <div class="card">
 
-                            <td scope="col">
-                                <form action="{{ url('/home/sell/'.$stock['id']) }}" method="POST">
-                                    {{ csrf_field() }}
+                        {{ csrf_field() }}
+                        <table class="table-borderless">
+                            <thead>
+                            <tr>
+                                <th scope="col">Symbol</th>
+                                <th scope="col">Current Ask Price (USD)</th>
+                                @if($stockToSell['currency'] != 'USD')
+                                    <th scope="col">Current Ask Price ({{ $stockToSell['currency'] }})</th>
+                                @endif
+                                <th scope="col">Transaction fee</th>
+                                <th scope="col">Amount To Sell</th>
+                                <th scope="col">Total (USD)</th>
+                                <th scope="col">Perform</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="stock_record rounded">
+                                <td scope="col">{{$stockToSell['symbol']}}</td>
+                                {{--                            <td scope="col">{{$stockToSell['price_usd']}}</td>--}}
+                                <td scope="col">{{$stockToSell['price']}}</td>
+                                @if($stockToSell['currency'] != 'USD')
+                                    <td scope="col">{{$stockToSell['origPrice']}}</td>
+                                @endif
+                                <td scope="col">{{ \Config::get('constants.options.TRANSACT_COST') }}</td>
+                                <td>
                                     <input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"
                                            placeholder="{{ $stock['count'] }}" required
                                            name="share_count_{{ $stock['id'] }}">
-                                </form>
-                            </td>
-                            <td scope="col">Total placeholder</td>
-                            <td>
-                                <button type="submit" id="sell-stock-{{ $stock['id'] }}"
-                                        class="btn d-inline">
-                                    <i class="fa fa-plus"></i> Sell
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                </td>
+                                <td scope="col">Total placeholder</td>
+                                <td>
+                                    <button type="submit" id="sell-stock-{{ $stock['id'] }}"
+                                            class="btn d-inline">
+                                        <i class="fa fa-plus"></i> Sell
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </form>
             </div>
         @endif
     </div>

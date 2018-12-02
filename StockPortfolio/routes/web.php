@@ -18,6 +18,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::get('home/transaction/{stockid}', 'HomeController@transaction')->name('transaction');
-Route::post('/home/transaction/sell/{stockid}', 'HomeController@sell')->name('sell');
+Route::get('home/transaction/{symbol}', 'HomeController@transaction')->name('transaction');
+Route::post('/home/transaction/sell/{symbol}', 'HomeController@sell')->name('sell');
 

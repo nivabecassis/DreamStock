@@ -34,12 +34,12 @@
                                 <td>{{$stock['count']}}</td>
                                 <td>
                                     <div class="form-group p-2">
-                                        <form action="{{ url('/home/transaction/'.$stock['id']) }}" method="GET">
-                                            <button type="submit" id="buy-stock-{{ $stock['id'] }}"
+                                        <form action="{{ url('/home/transaction/'.$stock['symbol']) }}" method="GET">
+                                            <button type="submit" id="buy-stock-{{ $stock['symbol'] }}"
                                                     class="btn d-inline" name="type" value="buy">
                                                 <i class="fa fa-plus"></i> Buy
                                             </button>
-                                            <button type="submit" id="sell-stock-{{ $stock['id'] }}"
+                                            <button type="submit" id="sell-stock-{{ $stock['symbol'] }}"
                                                     class="btn d-inline" name="type" value="sell">
                                                 <i class="fa fa-plus"></i> Sell
                                             </button>
@@ -59,7 +59,7 @@
         @if(isset($stockToSell))
             <div class="mt-4">
                 <h3>Selling Stock: {{$stockToSell['symbol']}}</h3>
-                <form action="{{ url('/home/transaction/sell/'.$stock['id']) }}" method="POST">
+                <form action="{{ url('/home/transaction/sell/'.$stockToSell['symbol']) }}" method="POST">
                     <div class="card">
                         {{ csrf_field() }}
                         <table class="table-borderless">
@@ -68,11 +68,10 @@
                                 <th scope="col">Symbol</th>
                                 <th scope="col">Current Ask Price (USD)</th>
                                 @if($stockToSell['currency'] != 'USD')
-                                    <th scope="col">Current Ask Price ({{ $stockToSell['currency'] }})</th>
+                                    <th scope="col">Current Ask Price ({{ $stockToSell['orig_currency'] }})</th>
                                 @endif
                                 <th scope="col">Transaction fee</th>
                                 <th scope="col">Amount To Sell</th>
-                                <th scope="col">Total (USD)</th>
                                 <th scope="col">Perform</th>
                             </tr>
                             </thead>
@@ -81,17 +80,16 @@
                                 <td scope="col">{{$stockToSell['symbol']}}</td>
                                 <td scope="col">{{$stockToSell['price']}}</td>
                                 @if($stockToSell['currency'] != 'USD')
-                                    <td scope="col">{{$stockToSell['origPrice']}}</td>
+                                    <td scope="col">{{$stockToSell['orig_price']}}</td>
                                 @endif
                                 <td scope="col">{{ \Config::get('constants.options.TRANSACT_COST') }}</td>
                                 <td>
-                                    <input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"
+                                    <input type="number" id="share-count-{{ $stockToSell['symbol'] }}" class="d-inline"
                                            placeholder="{{ $stockToSell['count'] }}" required
                                            name="share_count">
                                 </td>
-                                <td scope="col">Total placeholder</td>
                                 <td>
-                                    <button type="submit" id="sell-stock-{{ $stock['id'] }}"
+                                    <button type="submit" id="sell-stock-{{ $stockToSell['symbol'] }}"
                                             class="btn d-inline">
                                         <i class="fa fa-plus"></i> Sell
                                     </button>

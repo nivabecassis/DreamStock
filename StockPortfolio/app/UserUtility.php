@@ -26,15 +26,15 @@ class UserUtility
      * is authenticated.
      *
      * @param $user User
-     * @param $stockId Int stock id of the share that needs to be sold
+     * @param $symbol
      * @param $count Int number of shares that will be sold
      * @return bool True if the sale was allowed, false otherwise
      */
-    public static function sellShares($user, $stockId, $count) {
-        $stock = self::findMatchingStock($user, $stockId);
+    public static function sellShares($user, $symbol, $count) {
+        $stock = self::findMatchingStock($user, $symbol);
         $ownedShares = $stock->share_count;
         if($ownedShares > 0 && $ownedShares >= $count) {
-            $amount = self::calcTotalStockValue($stock, $count);
+            $amount = self::calcTotalStockValue($symbol, $count);
             if(self::performTransaction($user, $amount)) {
                 // Transaction approved and executed
                 $stock->share_count -= $count;
@@ -53,8 +53,8 @@ class UserUtility
      * @param $count Int number of stocks
      * @return float|int Total value of the stocks
      */
-    public static function calcTotalStockValue($stock, $count) {
-        $data = FinanceAPI::getAllStockInfo([$stock['ticker_symbol']])['data'][0];
+    public static function calcTotalStockValue($symbol, $count) {
+        $data = FinanceAPI::getAllStockInfo([$symbol])['data'][0];
         $currency = $data['currency'];
         $price = $data['price'];
         if($currency !== 'USD') {
@@ -67,14 +67,13 @@ class UserUtility
      * Finds the matching stock according to its id.
      *
      * @param $user User
-     * @param $stockId Int id of the stock to find
+     * @param $symbol
      * @return null if the stock is not found, Portfolio_Stock otherwise
      */
-    public static function findMatchingStock($user, $stockId) {
+    public static function findMatchingStock($user, $symbol) {
         $stocks = $user->portfolios->portfolio_stocks;
         foreach($stocks as $stock) {
-            if($stock->id - 1 == $stockId) {
-                // id - 1 to compensate for SQL index starting at 1
+            if($stock->ticker_symbol === $symbol) {
                 return $stock;
             }
         }

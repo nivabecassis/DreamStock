@@ -23,27 +23,37 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
-    public function transaction(Request $request, $stockId)
+    public function transaction(Request $request, $symbol)
     {
+        // Good at this point
+//        return var_dump($symbol);
         $type = $this->sanitize($request->input('type'));
-        if (isset($type)) {
+        if (isset($type) && is_string($type)) {
             if (strtolower($type) === 'sell') {
                 $data = $this->getDataForView();
-                $data['stockToSell'] = $this->getStockFromStocks($stockId, $data['stocks']);
-                // TODO: keep original currency -> add field in change currency to usd so that both are kept
+                $data['stockToSell'] = $this->getStockFromStocks($symbol, $data['stocks']);
+//                return var_dump($data['stockToSell']);
+                // Good at this point
                 return view('home', $data);
             } else if (strtolower($type) === 'buy') {
-                // TODO: Austin's stuff
+                // TODO: Austin's stuff goes here
             }
         }
         // TODO: make this view (maybe 404)
         return view('error');
     }
 
-    private function getStockFromStocks($stockId, $stocks)
+    /**
+     * Find a stock out of many stocks
+     *
+     * @param $symbol
+     * @param $stocks array haystack
+     * @return mixed Stock formatted as the api response
+     */
+    private function getStockFromStocks($symbol, $stocks)
     {
         foreach ($stocks as $stock) {
-            if ($stock['id'] == $stockId) {
+            if ($stock['symbol'] === $symbol) {
                 return $stock;
             }
         }
@@ -53,23 +63,23 @@ class HomeController extends Controller
      * Sells the user's given stock if permitted.
      *
      * @param Request $request
-     * @param $stockid
+     * @param $symbol
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function sell(Request $request, $stockId)
+    public function sell(Request $request, $symbol)
     {
         $user = Auth::user();
 
         // Access the share count from the form
         $shareCount = $request->input('share_count');
 
+        // Execute the sale, validation is done within this function
+        $authorized = UserUtility::sellShares($user, $symbol, $shareCount);
+
         // Get the portfolio data for the view
         $data = $this->getDataForView();
 
-        // Execute the sale, validation is done within this function
-        $authorized = UserUtility::sellShares($user, $stockId, $shareCount);
-
-        if(!$authorized) {
+        if (!$authorized) {
             // TODO: make this view
             return view('error');
         }
@@ -231,6 +241,10 @@ class HomeController extends Controller
     {
         $currency = $data['currency'];
         if ($currency != "USD") {
+            $data['orig_currency'] = $currency;
+            $data['orig_price'] = $data['price'];
+            $data['orig_close_yesterday'] = $data['close_yesterday'];
+
             $price = CurrencyConverter::convertToUSD($currency, $data['price']);
             $lastClose = CurrencyConverter::convertToUSD($currency, $data['close_yesterday']);
 

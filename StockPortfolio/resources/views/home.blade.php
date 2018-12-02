@@ -13,6 +13,7 @@
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
+                    {{var_dump($stocks, $stocks[0]['id'])}}
                     <table class="table-borderless">
                         <thead>
                         <tr>
@@ -33,7 +34,7 @@
                                     <td>{{$stock['change']}}</td>
                                     <td>{{$stock['count']}}</td>
                                     <td>
-                                        <form action="{{ url('/home/'.$stock['id']) }}" method="POST">
+                                        <form action="{{ url('/home/sell/'.$stock['id']) }}" method="POST">
                                             {{ csrf_field() }}
                                             <div class="form-group p-2">
                                                 <button type="submit" id="buy-stock-{{ $stock['id'] }}" class="btn d-inline">
@@ -43,7 +44,7 @@
                                                     <i class="fa fa-plus"></i> Sell
                                                 </button>
                                                 <input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"
-                                                    placeholder="{{ $stock['count'] }}" required>
+                                                    placeholder="{{ $stock['count'] }}" required name="share-count-{{ $stock['id'] }}">
                                             </div>
                                         </form>
                                     </td>

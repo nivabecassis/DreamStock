@@ -7,7 +7,7 @@ use App\UserUtility;
 use Auth;
 use App\FinanceAPI;
 use App\CurrencyConverter;
-use http\Env\Request;
+use Illuminate\Http\Request;
 
 use App\ApiUri;
 
@@ -23,9 +23,16 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
-    public function sell(Request $request, $stockId)
+    /**
+     * Sells the user's given stock if permitted.
+     *
+     * @param Request $request
+     * @param $stockid
+     */
+    public function sell(Request $request, $stockid)
     {
-        // TODO: Perform logic here
+        $data = $request->input('share-count-'.$stockid);
+        var_dump($request, $stockid, $data);
     }
 
     /**

@@ -89,7 +89,7 @@
                                 <td>
                                     <input type="number" id="share-count-{{ $stock['id'] }}" class="d-inline"
                                            placeholder="{{ $stock['count'] }}" required
-                                           name="share_count_{{ $stock['id'] }}">
+                                           name="share_count">
                                 </td>
                                 <td scope="col">Total placeholder</td>
                                 <td>

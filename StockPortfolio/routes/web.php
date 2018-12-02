@@ -18,7 +18,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-//Route::get('/home', 'PortfolioController@index')->name('portfolio');
 Route::get('home/transaction/{stockid}', 'HomeController@transaction')->name('transaction');
 Route::post('/home/sell/{stockid}', 'HomeController@sell')->name('sell');
 

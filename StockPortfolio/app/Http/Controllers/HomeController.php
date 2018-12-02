@@ -30,6 +30,7 @@ class HomeController extends Controller
             if (strtolower($type) === 'sell') {
                 $data = $this->getDataForView();
                 $data['stockToSell'] = $this->getStockFromStocks($stockId, $data['stocks']);
+                // TODO: keep original currency -> add field in change currency to usd so that both are kept
                 return view('home', $data);
             } else if (strtolower($type) === 'buy') {
                 // TODO: Austin's stuff
@@ -55,18 +56,20 @@ class HomeController extends Controller
      * @param $stockid
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function sell(Request $request)
+    public function sell(Request $request, $stockId)
     {
-        $stockid = $request->input('stock');
-        return var_dump($stockid);
-//        $sellCount = $request->input('share-count-'.$stockid);
+        $user = Auth::user();
+
+        // Access the share count from the form
+        $shareCount = $request->input('share_count');
+
+        // Get the portfolio data for the view
         $data = $this->getDataForView();
-//        $data['sellCount'] = $sellCount;
-//        $data['requested_sell_id'] = $stockid;
-        $data['stockToSell'] = $data['stocks'][$stockid];
-        // TODO: keep original currency -> add field in change currency to usd so that both are kept
-//        return var_dump($data);
-        return view('home', $data);
+
+        // Execute the sale, validation is done within this function
+        // self::sellShares($user, $stockId, $shareCount);
+
+        return redirect()->route('home', $data);
     }
 
     /**

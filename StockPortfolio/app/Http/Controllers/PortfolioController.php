@@ -41,19 +41,10 @@ class PortfolioController extends Controller
         // Gets percentage change between current and last daily close portfolio value
         $percentageChange = $this->getPercentageChange($portfolioValue, $portfolioLastCloseValue);
 
-<<<<<<< HEAD
-        return view('home', [
-            'balance' => $balance,
-            'portfolioValue' => $portfolioValue,
-            'portfolioLastCloseValue' => $portfolioLastCloseValue,
-            'percentageChange' => $percentageChange,
-        ]);
-=======
 //        return view('home', [
 //            'portfolioValue' => $portfolioValue,
 //        ]);
         return view('buying_stocks.get_quotes');
->>>>>>> BuyingStock
     }
 
     /**
@@ -182,7 +173,6 @@ class PortfolioController extends Controller
      */
     private function getAllLastClosePrices($data, array $tickers)
     {
-<<<<<<< HEAD
         $lastClosePrice = array();
         foreach ($data as $value) { // Loop through array 
             foreach ($tickers as $key => $share) { // Loop through all user's share count
@@ -209,8 +199,5 @@ class PortfolioController extends Controller
         }
 
         return $sum;
-=======
-        return $user->portfolios->cash_owned;
->>>>>>> BuyingStock
     }
 }

@@ -2,11 +2,8 @@
 
 namespace App;
 
-<<<<<<< HEAD
-=======
 use App\ApiUri;
 
->>>>>>> BuyingStock
 /**
  * Class used for querying worldtradingdata API
  * @package App

@@ -8,11 +8,7 @@ class CurrencyConverter
 {
     /**
      * Converts any type of currency that 'FreeForexAPI' supports to USD
-<<<<<<< HEAD
-     * 
-=======
      *
->>>>>>> BuyingStock
      * @param $currency Original currency (e.g 'CAD', 'JPY, 'EUR', ...)
      * @param $value Original value (e.g '9', '9.0', '99.00', ...)
      * @return $value under USD currency
@@ -26,8 +22,4 @@ class CurrencyConverter
 
         return $value / $rate;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> BuyingStock

@@ -9,11 +9,8 @@
 namespace App;
 
 use \Config;
-<<<<<<< HEAD
 use App\FinanceAPI;
 use App\CurrencyConverter;
-=======
->>>>>>> BuyingStock
 
 /**
  * Class UserUtility provides user related actions through the use
@@ -25,7 +22,6 @@ class UserUtility
 {
 
     /**
-<<<<<<< HEAD
      * Sells the specified share count of the user if the transaction
      * is authenticated.
      *
@@ -85,8 +81,6 @@ class UserUtility
     }
 
     /**
-=======
->>>>>>> BuyingStock
      * Gets the user's balance.
      *
      * @param $user User
@@ -133,8 +127,6 @@ class UserUtility
             - Config::get('constants.options.TRANSACT_COST') >= 0;
     }
 
-<<<<<<< HEAD
-=======
     /**
      * Does all necessary checking and will either buy a stock or update an
      * existing one
@@ -235,5 +227,4 @@ class UserUtility
         $portfolio_stock->save();
 
     }
->>>>>>> BuyingStock
 }

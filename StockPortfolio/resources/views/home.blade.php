@@ -61,7 +61,7 @@
         @if(isset($stockPerform))
             <div class="mt-4">
                 <h3>Stock to {{ $action }}: {{$stockPerform['symbol']}}</h3>
-                <form action="{{ url('/home/transaction/sell/'.$stockPerform['symbol']) }}" method="POST">
+                <form action="{{ url('/home/transaction/' . $action .'/'.$stockPerform['symbol']) }}" method="POST">
                     <div class="card">
                         {{ csrf_field() }}
                         <table class="table-borderless">
@@ -94,7 +94,7 @@
                                 <td>
                                     <button type="submit" id="{{ $action }}-stock-{{ $stockPerform['symbol'] }}"
                                             class="btn d-inline">
-                                        <i class="fa fa-plus"></i> Sell
+                                        <i class="fa fa-plus"></i> {{$action}}
                                     </button>
                                 </td>
                             </tr>

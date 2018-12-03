@@ -33,22 +33,6 @@ class HomeController extends Controller
         return view("/home", $data);
     }
 
-    /**
-     * Adds entry to Portfolio_Stock table
-     *
-     * @param Request $request
-     */
-    function purchaseStock(Request $request, $symbol)
-    {
-        $user = Auth::user();
-        $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
-        $shares = intval($request->input("shares"));
-
-        UserUtility::storeStock($user, $quote, $shares);
-
-        // *ISSUE* all quotes the user got will be gone when redirected
-        return redirect("/home");
-    }
 
     public function transaction(Request $request, $symbol)
     {
@@ -104,6 +88,26 @@ class HomeController extends Controller
 
         // Execute the sale, validation is done within this function
         UserUtility::sellShares($user, $symbol, $shareCount);
+
+        // Get the portfolio data for the view
+        $data = $this->getDataForView();
+
+        return redirect()->route('home', $data);
+    }
+
+    /**
+     * Adds entry to Portfolio_Stock table
+     *
+     * @param Request $request
+     * @param $symbol Ticker of company
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    function purchaseStock(Request $request, $symbol)
+    {
+        $user = Auth::user();
+        $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
+        $shares = $request->input("share_count");
+        UserUtility::storeStock($user, $quote, $shares);
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();

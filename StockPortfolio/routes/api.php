@@ -32,3 +32,5 @@ Route::group([
 });
 
 Route::post('/api/api/buy', 'ApiController@buyStock')->middleware('api');
+
+Route::get('/allstocks', 'ApiController@getAllStocks');

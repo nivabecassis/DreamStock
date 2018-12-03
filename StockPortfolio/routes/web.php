@@ -21,6 +21,6 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('home/transaction/{symbol}', 'HomeController@transaction')->name('transaction');
 Route::post('/home/transaction/sell/{symbol}', 'HomeController@sell')->name('sell');
 
-Route::get('/home', 'PortfolioController@index')->name('portfolio');
-Route::post('/home', "Portfolio_StockController@quotes");
+//Route::get('/home', 'PortfolioController@index')->name('portfolio');
+//Route::post('/home', "Portfolio_StockController@quotes");
 Route::post('/home/{symbol}', 'Portfolio_StockController@purchaseStock');

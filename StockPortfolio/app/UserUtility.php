@@ -39,6 +39,11 @@ class UserUtility
                 // Transaction approved and executed
                 $stock->share_count -= $count;
                 $stock->save();
+
+                // Delete the record if there are no shares left
+                if($stock->share_count == 0) {
+                    $stock->delete();
+                }
                 return true;
             }
         }

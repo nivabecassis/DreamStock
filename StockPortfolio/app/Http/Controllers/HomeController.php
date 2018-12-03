@@ -7,7 +7,7 @@ use App\UserUtility;
 use Auth;
 use App\FinanceAPI;
 use App\CurrencyConverter;
-use http\Env\Request;
+use Illuminate\Http\Request;
 
 use App\ApiUri;
 
@@ -23,9 +23,63 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
-    public function sell(Request $request, $stockId)
+    public function transaction(Request $request, $symbol)
     {
-        // TODO: Perform logic here
+        // Good at this point
+//        return var_dump($symbol);
+        $type = $this->sanitize($request->input('type'));
+        if (isset($type) && is_string($type)) {
+            if (strtolower($type) === 'sell') {
+                $data = $this->getDataForView();
+                $data['stockToSell'] = $this->getStockFromStocks($symbol, $data['stocks']);
+//                return var_dump($data['stockToSell']);
+                // Good at this point
+                return view('home', $data);
+            } else if (strtolower($type) === 'buy') {
+                // TODO: Austin's stuff goes here
+            }
+        }
+        // TODO: make this view (maybe 404)
+        return view('error');
+    }
+
+    /**
+     * Find a stock out of many stocks
+     *
+     * @param $symbol
+     * @param $stocks array haystack
+     * @return mixed Stock formatted as the api response
+     */
+    private function getStockFromStocks($symbol, $stocks)
+    {
+        foreach ($stocks as $stock) {
+            if ($stock['symbol'] === $symbol) {
+                return $stock;
+            }
+        }
+    }
+
+    /**
+     * Sells the user's given stock if permitted.
+     *
+     * @param Request $request
+     * @param $symbol
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function sell(Request $request, $symbol)
+    {
+        $user = Auth::user();
+
+        // Access the share count from the form
+        $shareCount = $request->input('share_count');
+
+        // Execute the sale, validation is done within this function
+        UserUtility::sellShares($user, $symbol, $shareCount);
+
+        // Get the portfolio data for the view
+        $data = $this->getDataForView();
+
+        return redirect()->route('home', $data);
     }
 
     /**
@@ -79,12 +133,13 @@ class HomeController extends Controller
      * @param $stocksData
      * @return array
      */
-    private function getStocksInfo($dbStocks, $stocksData) {
+    private function getStocksInfo($dbStocks, $stocksData)
+    {
         $stocks = array();
         foreach ($dbStocks as $dbStock) {
             foreach ($stocksData as $data) {
                 // Matching data from API and from database
-                if($dbStock->ticker_symbol === $data['symbol']) {
+                if ($dbStock->ticker_symbol === $data['symbol']) {
                     // Updated stock object with all the data needed
                     $stock = $this->keepNecessaryInfo($dbStock, $data);
                     // Convert all the pricing to USD
@@ -181,6 +236,10 @@ class HomeController extends Controller
     {
         $currency = $data['currency'];
         if ($currency != "USD") {
+            $data['orig_currency'] = $currency;
+            $data['orig_price'] = $data['price'];
+            $data['orig_close_yesterday'] = $data['close_yesterday'];
+
             $price = CurrencyConverter::convertToUSD($currency, $data['price']);
             $lastClose = CurrencyConverter::convertToUSD($currency, $data['close_yesterday']);
 
@@ -196,9 +255,17 @@ class HomeController extends Controller
      * @param $tm string timestamp to extract from
      * @return string date
      */
-    public static function getDateFromTimestamp($tm) {
+    public static function getDateFromTimestamp($tm)
+    {
         $pos = strpos($tm, ' ');
         return substr($tm, 0, $pos);
+    }
+
+    private function sanitize($str)
+    {
+        $str = strip_tags($str);
+        $str = htmlentities($str);
+        return $str;
     }
 
 }

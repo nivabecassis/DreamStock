@@ -9,6 +9,8 @@
 namespace App;
 
 use \Config;
+use App\FinanceAPI;
+use App\CurrencyConverter;
 
 /**
  * Class UserUtility provides user related actions through the use
@@ -18,6 +20,65 @@ use \Config;
  */
 class UserUtility
 {
+
+    /**
+     * Sells the specified share count of the user if the transaction
+     * is authenticated.
+     *
+     * @param $user User
+     * @param $symbol
+     * @param $count Int number of shares that will be sold
+     * @return bool True if the sale was allowed, false otherwise
+     */
+    public static function sellShares($user, $symbol, $count) {
+        $stock = self::findMatchingStock($user, $symbol);
+        $ownedShares = $stock->share_count;
+        if($ownedShares > 0 && $ownedShares >= $count) {
+            $amount = self::calcTotalStockValue($symbol, $count);
+            if(self::performTransaction($user, $amount)) {
+                // Transaction approved and executed
+                $stock->share_count -= $count;
+                $stock->save();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Calculate the total stock value for a given stock. Pulls the
+     * most recent price of the stock from the FinanceAPI class.
+     *
+     * @param $stock Stock
+     * @param $count Int number of stocks
+     * @return float|int Total value of the stocks
+     */
+    public static function calcTotalStockValue($symbol, $count) {
+        $data = FinanceAPI::getAllStockInfo([$symbol])['data'][0];
+        $currency = $data['currency'];
+        $price = $data['price'];
+        if($currency !== 'USD') {
+            $price = CurrencyConverter::convertToUSD($currency, $price);
+        }
+        return $price * $count;
+    }
+
+    /**
+     * Finds the matching stock according to its id.
+     *
+     * @param $user User
+     * @param $symbol
+     * @return null if the stock is not found, Portfolio_Stock otherwise
+     */
+    public static function findMatchingStock($user, $symbol) {
+        $stocks = $user->portfolios->portfolio_stocks;
+        foreach($stocks as $stock) {
+            if($stock->ticker_symbol === $symbol) {
+                return $stock;
+            }
+        }
+        return null;
+    }
 
     /**
      * Gets the user's balance.

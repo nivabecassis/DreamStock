@@ -32,7 +32,7 @@ class ApiController extends Controller
         else
         {
             $user = auth('api')->user();
-            UserUtility::buyStock($user, $stockInfo, $request->input("ticker"), $request->input("quantity"));
+            UserUtility::storeStock($user, $stockInfo, $request->input("ticker"), $request->input("quantity"));
             return response()->json(['cashleft' => $user->portfolios->cash_owned], 200);
         }
     }

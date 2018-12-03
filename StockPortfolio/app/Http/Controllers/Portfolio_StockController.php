@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Portfolio_Stock;
 use App\ApiUri;
-use App\CurrencyConverter;
 use App\FinanceAPI;
 use App\UserUtility;
 use Illuminate\Http\Request;
@@ -25,10 +23,10 @@ class Portfolio_StockController extends Controller
 
     public function quotes(Request $request)
     {
-        $allQuotes = FinanceAPI::getAllStockInfo(explode(",", $request->input("ticker_symbol")));
+        $GLOBALS["allQuotes"] = FinanceAPI::getAllStockInfo(explode(",", $request->input("ticker_symbol")));
         // Need to display quotes
         return view("buying_stocks.get_quotes", [
-            'quotes' => $allQuotes
+            'quotes' => $GLOBALS["allQuotes"]
         ]);
     }
 
@@ -40,9 +38,21 @@ class Portfolio_StockController extends Controller
     function purchaseStock(Request $request, $symbol)
     {
         $user = Auth::user();
-        UserUtility::buyStock($user, $request, $symbol);
+        $quote = $this->findCompanyInfo($GLOBALS["allQuotes"], $symbol);
+        $shares = $request->input("shares");
+
+        UserUtility::storeStock($user, $quote, $symbol, $shares);
 
         // *ISSUE* all quotes the user got will be gone when redirected
         return redirect("/home");
+    }
+
+    private function findCompanyInfo($allQuotes, $symbol)
+    {
+        foreach ($allQuotes["data"] as $quote) {
+            if ($quote["symbol"] === $symbol) {
+                return $quote;
+            }
+        }
     }
 }

@@ -55,7 +55,7 @@
                         <td>
                             <form action={{url("/home/" . $quote["symbol"])}} method="POST">
                                 {{ csrf_field() }}
-                                <button type="submit" id="buy-stock-{{ $quote["symbol"] }}">
+                                <button type="submit" id="shares">
                                     Buy stock
                                 </button>
                                 <input type="text" name="shares" id="shares">

@@ -13,5 +13,6 @@ return [
    'options' => [
        'TRANSACT_COST' => 10,
        'DEFAULT_BALANCE' => 10000,
+       'STOCK_CACHE' => null,
    ],
 ];

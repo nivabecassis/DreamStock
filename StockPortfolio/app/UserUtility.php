@@ -141,11 +141,12 @@ class UserUtility
      * @param $symbol Ticker symbol of the company
      * @return null This will be returned if there is no purchase made
      */
-    public static function storeStock($user, $stockInfo, $symbol, $shares)
+    public static function storeStock($user, $stockInfo, $shares)
     {
         $stocks = $user->portfolios->portfolio_stocks;
         $currency = $stockInfo["data"][0]["currency"];
         $price = $stockInfo["data"][0]["price"];
+        $symbol = $stockInfo["data"][0]["symbol"];
 
         if (self::canBuyShares($user, $stockInfo, $shares)) {
             /*

@@ -24,6 +24,32 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    public function quotes(Request $request)
+    {
+        $allQuotes = FinanceAPI::getAllStockInfo(explode(",", $request->input("ticker_symbol")));
+        $data = $this->getDataForView();
+        $data["quotes"] = $allQuotes;
+
+        return view("/home", $data);
+    }
+
+    /**
+     * Adds entry to Portfolio_Stock table
+     *
+     * @param Request $request
+     */
+    function purchaseStock(Request $request, $symbol)
+    {
+        $user = Auth::user();
+        $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
+        $shares = intval($request->input("shares"));
+
+        UserUtility::storeStock($user, $quote, $shares);
+
+        // *ISSUE* all quotes the user got will be gone when redirected
+        return redirect("/home");
+    }
+
     public function transaction(Request $request, $symbol)
     {
         $data = array();

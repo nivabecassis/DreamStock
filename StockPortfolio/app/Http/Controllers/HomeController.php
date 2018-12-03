@@ -30,11 +30,12 @@ class HomeController extends Controller
         // Type of the request (buy or sell)
         $type = $this->sanitize($request->input('type'));
         if (isset($type) && is_string($type)) {
-            if (strtolower($type) === 'sell') {
-                $data = $this->getDataForView();
-                $data['stockToSell'] = $this->getStockFromStocks($symbol, $data['stocks']);
-            } else if (strtolower($type) === 'buy') {
-                // TODO: Austin's stuff goes here
+            $data = $this->getDataForView();
+            $data['stockPerform'] = $this->getStockFromStocks($symbol, $data['stocks']);
+            if (strtolower($type) == 'sell') {
+                $data['action'] = 'sell';
+            } else if (strtolower($type) == 'buy') {
+                $data['action'] = 'buy';
             }
         } else {
             $data = [

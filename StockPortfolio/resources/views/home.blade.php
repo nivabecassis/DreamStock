@@ -58,10 +58,10 @@
                 </div>
             </div>
         @endif
-        @if(isset($stockToSell))
+        @if(isset($stockPerform))
             <div class="mt-4">
-                <h3>Selling Stock: {{$stockToSell['symbol']}}</h3>
-                <form action="{{ url('/home/transaction/sell/'.$stockToSell['symbol']) }}" method="POST">
+                <h3>Stock to {{ $action }}: {{$stockPerform['symbol']}}</h3>
+                <form action="{{ url('/home/transaction/sell/'.$stockPerform['symbol']) }}" method="POST">
                     <div class="card">
                         {{ csrf_field() }}
                         <table class="table-borderless">
@@ -69,30 +69,30 @@
                             <tr>
                                 <th scope="col">Symbol</th>
                                 <th scope="col">Current Ask Price (USD)</th>
-                                @if($stockToSell['currency'] != 'USD')
-                                    <th scope="col">Current Ask Price ({{ $stockToSell['orig_currency'] }})</th>
+                                @if($stockPerform['currency'] != 'USD')
+                                    <th scope="col">Current Ask Price ({{ $stockPerform['orig_currency'] }})</th>
                                 @endif
                                 <th scope="col">Transaction fee</th>
-                                <th scope="col">Amount To Sell</th>
+                                <th scope="col">Amount to {{ $action }}</th>
                                 <th scope="col">Perform</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr class="stock_record rounded">
-                                <td scope="col">{{$stockToSell['symbol']}}</td>
-                                <td scope="col">{{$stockToSell['price']}}</td>
-                                @if($stockToSell['currency'] != 'USD')
-                                    <td scope="col">{{$stockToSell['orig_price']}}</td>
+                                <td scope="col">{{$stockPerform['symbol']}}</td>
+                                <td scope="col">{{$stockPerform['price']}}</td>
+                                @if($stockPerform['currency'] != 'USD')
+                                    <td scope="col">{{$stockPerform['orig_price']}}</td>
                                 @endif
                                 <td scope="col">{{ \Config::get('constants.options.TRANSACT_COST') }}</td>
                                 <td>
-                                    <input type="number" id="share-count-{{ $stockToSell['symbol'] }}"
+                                    <input type="number" id="share-count-{{ $stockPerform['symbol'] }}"
                                            class="d-inline"
-                                           placeholder="{{ $stockToSell['count'] }}" required
+                                           placeholder="{{ $stockPerform['count'] }}" required
                                            name="share_count">
                                 </td>
                                 <td>
-                                    <button type="submit" id="sell-stock-{{ $stockToSell['symbol'] }}"
+                                    <button type="submit" id="{{ $action }}-stock-{{ $stockPerform['symbol'] }}"
                                             class="btn d-inline">
                                         <i class="fa fa-plus"></i> Sell
                                     </button>

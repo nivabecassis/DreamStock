@@ -5,3 +5,12 @@
 td, th {
     text-align: center;
 }
+
+.input-text {
+    width: 40%;
+    display: inline;
+}
+
+.input-label {
+    font-size: 1.2em;
+}

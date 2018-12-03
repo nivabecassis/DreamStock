@@ -12,5 +12,6 @@
 return [
    'options' => [
        'TRANSACT_COST' => 10,
+       'DEFAULT_BALANCE' => 10000,
    ],
 ];

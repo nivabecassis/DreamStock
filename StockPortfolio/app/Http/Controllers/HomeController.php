@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Portfolio;
 use App\Portfolio_Stock;
 use App\UserUtility;
 use Auth;
@@ -25,22 +26,23 @@ class HomeController extends Controller
 
     public function transaction(Request $request, $symbol)
     {
-        // Good at this point
-//        return var_dump($symbol);
+        $data = array();
+        // Type of the request (buy or sell)
         $type = $this->sanitize($request->input('type'));
         if (isset($type) && is_string($type)) {
             if (strtolower($type) === 'sell') {
                 $data = $this->getDataForView();
                 $data['stockToSell'] = $this->getStockFromStocks($symbol, $data['stocks']);
-//                return var_dump($data['stockToSell']);
-                // Good at this point
-                return view('home', $data);
             } else if (strtolower($type) === 'buy') {
                 // TODO: Austin's stuff goes here
             }
+        } else {
+            $data = [
+                'error' => 'true',
+                'errorMsg' => 'Invalid request!',
+            ];
         }
-        // TODO: make this view (maybe 404)
-        return view('error');
+        return view('home', $data);
     }
 
     /**
@@ -99,6 +101,61 @@ class HomeController extends Controller
     private function getDataForView()
     {
         $user = Auth::user();
+        $data = array();
+        if (!isset($user->portfolios) || count($user->portfolios->portfolio_stocks) == 0) {
+            $data = $this->showNoData($user);
+            $data['portfolio'] = $this->getPortfolioData($user);
+        } else {
+            $data = $this->showData($user);
+        }
+        return $data;
+    }
+
+    /**
+     * Set up of the data needed for the homepage if the user has no data yet.
+     *
+     * @param $user User that is currently authenticated
+     * @return array with error details
+     */
+    private function showNoData($user)
+    {
+        // Create portfolio for the new user and give default balance
+        if (!isset($user->portfolios)) {
+            $this->createPortfolio($user);
+        }
+        return [
+            'error' => 'true',
+            'errorMsg' => 'No stocks to show!',
+        ];
+    }
+
+    /**
+     * Creates a new portfolio for the given user.
+     * Assigns it the default balance value coming from the
+     * config\constants.php file.
+     *
+     * @param $user User
+     */
+    private function createPortfolio($user)
+    {
+        $portfolio = new Portfolio();
+        $portfolio->user_id = $user->id;
+        $portfolio->cash_owned = \Config::get('constants.options.DEFAULT_BALANCE');
+
+        $user->portfolios = $portfolio;
+        $user->portfolios->save();
+    }
+
+    /**
+     * Performs all necessary actions related to getting the data associated
+     * with the authenticated user. Actions include fetching the user's owned
+     * stocks and their portfolio details.
+     *
+     * @param $user User that is currently authenticated
+     * @return array containing all data necessary for the homepage.
+     */
+    private function showData($user)
+    {
         $portfolio = $user->portfolios;
 
         // Array of stocks (comes from database)
@@ -107,15 +164,18 @@ class HomeController extends Controller
         // Array of ticker symbols
         $tickers = $this->getTickers($dbStocks);
 
-        // Array of stock data (comes from API call)
-        $stocksData = FinanceAPI::getAllStockInfo($tickers)['data'];
-
-        // Returns a single array containing all the necessary information
-        // for stocks with pricing in USD.
-        $stocks = $this->getStocksInfo($dbStocks, $stocksData);
-
-        // Share count for each stock
-        $shareCounts = $this->getShareCounts($stocks);
+        $stocks = array();
+        $shareCounts = array();
+        // Get data associated with each stock
+        if (count($tickers) > 0) {
+            // Array of stock data (comes from API call)
+            $stocksData = FinanceAPI::getAllStockInfo($tickers)['data'];
+            // Returns a single array containing all the necessary information
+            // for stocks with pricing in USD.
+            $stocks = $this->getStocksInfo($dbStocks, $stocksData);
+            // Share count for each stock
+            $shareCounts = $this->getShareCounts($stocks);
+        }
 
         // More details on the portfolio includes: cash_owned, value, last close value
         $portfolioDetails = $this->getPortfolioData($user, $stocks, $shareCounts);
@@ -124,14 +184,19 @@ class HomeController extends Controller
             'user' => $user,
             'portfolio' => $portfolioDetails,
             'stocks' => $stocks,
-            'since' => self::getDateFromTimestamp($user->created_at),
         ];
     }
 
     /**
-     * @param $dbStocks
-     * @param $stocksData
-     * @return array
+     * Perform a series of operations on the stocks.
+     * 1) Keep the data that is relevant for the homepage.
+     * 2) Convert pricing to USD (some fields remain with the
+     * original pricing and currency in case it is needed).
+     *
+     * @param $dbStocks array of stocks coming from the database
+     * @param $stocksData array of stocks data coming from API
+     * @return array Contains the combined data from the stocks
+     * provided from the database and those coming from the API.
      */
     private function getStocksInfo($dbStocks, $stocksData)
     {
@@ -216,13 +281,22 @@ class HomeController extends Controller
      * value is the share count for the corresponding symbol.
      * @return array containing portfolio details
      */
-    private function getPortfolioData($user, $stocks, $shareCounts)
+    private function getPortfolioData($user, $stocks = array(), $shareCounts = array())
     {
         $portfolioController = new PortfolioController();
+
+        $value = 0;
+        $closeValue = 0;
+        if (count($stocks) > 0 && count($shareCounts) > 0) {
+            $value = $portfolioController->getPortfolioValue($stocks, $shareCounts);
+            $closeValue = $portfolioController->getPortfolioLastCloseValue($stocks, $shareCounts);
+        }
+
         return [
             'cash' => $user->portfolios->cash_owned,
-            'value' => $portfolioController->getPortfolioValue($stocks, $shareCounts),
-            'closeValue' => $portfolioController->getPortfolioLastCloseValue($stocks, $shareCounts),
+            'value' => $value,
+            'closeValue' => $closeValue,
+            'since' => self::getDateFromTimestamp($user->created_at),
         ];
     }
 

@@ -8,64 +8,41 @@
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet" type="text/css">
+        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/welcomepage.css') }}" rel="stylesheet">
 
-        <!-- Styles -->
-        <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Nunito', sans-serif;
-                font-weight: 200;
-                height: 100vh;
-                margin: 0;
-            }
-
-            .full-height {
-                height: 100vh;
-            }
-
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
-
-            .position-ref {
-                position: relative;
-            }
-
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
-
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 13px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
-        </style>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
-
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}">JOIN FOR FREE</a>
-                        @endif
-                    @endauth
+        <nav class="navbar navbar-expand-lg fixed-top text-uppercase shadow-sm p-3 mb-5 bg-white rounded">
+            <div class="container">
+                <a href="{{ url('/') }}" class="navbar-brand">
+                    <img src="{{ asset('svg/chart-line-solid.svg') }}" alt="chart line" class="brand-icon">
+                    Stock Portfolio
+                </a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ml-auto">
+                    @if (Route::has('login'))
+                            @auth
+                                <li class="nav-item mx-0 mx-lg-1">
+                                    <a href="{{ url('/home') }}">Home</a>
+                                </li>
+                            @else
+                                <li class="nav-item mx-0 mx-lg-1">
+                                    <a href="{{ route('login') }}" class="btn btn-outline-primary my-2 my-sm-0">Login</a>
+                                </li>
+                                @if (Route::has('register'))
+                                    <li class="nav-item mx-0 mx-lg-1">
+                                        <a href="{{ route('register') }}" class="btn btn-primary my-2 my-sm-0">Join for free</a>
+                                    </li>
+                                @endif
+                            @endauth
+                    @endif
+                    </ul>
                 </div>
-            @endif
-        </div>
+            </div>
+        </nav>
+        <footer class="footer">
+            <span>© Stock Portfolio 2019. All Rights Reserved.</span>
+        </footer>
     </body>
 </html>

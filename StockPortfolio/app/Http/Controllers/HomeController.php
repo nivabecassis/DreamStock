@@ -46,6 +46,8 @@ class HomeController extends Controller
                 $data['action'] = 'sell';
             } else if (strtolower($type) == 'buy') {
                 $data['action'] = 'buy';
+            } else {
+                $this->error(['400' => 'Invalid request']);
             }
         } else {
             $data = [
@@ -86,10 +88,12 @@ class HomeController extends Controller
         // Access the share count from the form
         $shareCount = $request->input('share_count');
 
-        if(is_numeric($shareCount)) {
+        if (is_numeric($shareCount)) {
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
             UserUtility::sellShares($user, $symbol, $shareCount);
+        } else {
+            return $this->error(['400' => 'Invalid number of stocks entered']);
         }
 
         // Get the portfolio data for the view
@@ -103,7 +107,7 @@ class HomeController extends Controller
      *
      * @param Request $request
      * @param $symbol Ticker of company
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     function purchaseStock(Request $request, $symbol)
     {
@@ -111,9 +115,11 @@ class HomeController extends Controller
         $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
         $shares = $request->input("share_count");
 
-        if(is_numeric($shares)) {
+        if (is_numeric($shares)) {
             $shares = floor($shares);
             UserUtility::storeStock($user, $quote, $shares);
+        } else {
+            return $this->error(['400' => 'Invalid number of stocks entered']);
         }
 
         // Get the portfolio data for the view
@@ -378,6 +384,18 @@ class HomeController extends Controller
         $str = strip_tags($str);
         $str = htmlentities($str);
         return $str;
+    }
+
+    /**
+     * Redirect to the error page with the given. Default is 500.
+     *
+     * @param array $errors errors encountered. Associative array: key = code
+     * value = message.
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    private function error($errors = array())
+    {
+        return view('common.errors', ['errors' => $errors]);
     }
 
 }

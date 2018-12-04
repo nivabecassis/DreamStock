@@ -86,8 +86,11 @@ class HomeController extends Controller
         // Access the share count from the form
         $shareCount = $request->input('share_count');
 
-        // Execute the sale, validation is done within this function
-        UserUtility::sellShares($user, $symbol, $shareCount);
+        if(is_numeric($shareCount)) {
+            $shareCount = floor($shareCount);
+            // Execute the sale, validation is done within this function
+            UserUtility::sellShares($user, $symbol, $shareCount);
+        }
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();
@@ -107,7 +110,11 @@ class HomeController extends Controller
         $user = Auth::user();
         $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
         $shares = $request->input("share_count");
-        UserUtility::storeStock($user, $quote, $shares);
+
+        if(is_numeric($shares)) {
+            $shares = floor($shares);
+            UserUtility::storeStock($user, $quote, $shares);
+        }
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();

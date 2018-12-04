@@ -2,7 +2,7 @@
     background: #d8d8d8;
 }
 
-td, th {
+th, td {
     text-align: center;
 }
 
@@ -13,4 +13,18 @@ td, th {
 
 .input-label {
     font-size: 1.2em;
+}
+
+.action-btn-aligned {
+    position: relative;
+    top: 0.6em;
+}
+
+.center {
+    margin: 0 auto;
+}
+
+.resizeable-input-text {
+    flex: 0 0 66.666667%;
+    max-width: 70%;
 }

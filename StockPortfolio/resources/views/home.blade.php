@@ -166,7 +166,7 @@
                             <button type="submit" id="shares">
                                 Buy stock
                             </button>
-                            <input type="text" name="shares" id="shares">
+                            <input type="text" name="share_count" id="shares">
                         </form>
                     </td>
                 </tr>

@@ -69,6 +69,26 @@ class ApiController extends Controller
         }
     }
 
+    public function getCash(Request $request)
+    {
+        $user = auth('api')->user();
+
+        //Check if the user is authenticated
+        if(!isset($user))
+        {
+            return response()->json(['error' => 'invalid_token'], 401);
+        }
+        else
+        {
+            //Get the amount of cash that the user currently holds
+            $cashRemaining = DB::table('users')
+                ->join('portfolios', 'users.id', '=', 'portfolios.user_id')
+                ->select('cash_owned')
+                ->get();
+            return response()->json($cashRemaining, 200);
+        }
+    }
+
     /**
      * Performs sell share action against the database and returns 
      * the user's remaining cash.

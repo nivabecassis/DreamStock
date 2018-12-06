@@ -114,6 +114,11 @@ class HomeController extends Controller
         $user = Auth::user();
         $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
         $shares = $request->input("share_count");
+        $cost = CurrencyConverter::convertToUSD($quote["data"][0]["currency"], $quote["data"][0]["price"]) * $shares;
+
+        if (!UserUtility::hasEnoughCash($user, $cost)) {
+            return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
+        }
 
         if (is_numeric($shares)) {
             $shares = floor($shares);
@@ -124,6 +129,8 @@ class HomeController extends Controller
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();
+
+
 
         return redirect()->route('home', $data);
     }

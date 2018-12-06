@@ -25,7 +25,7 @@ class Portfolio_Stock extends Model
      *
      * @var array
      */
-    protected $fillable = ['ticker_symbol', 'share_count', 'purchase_date', 'purchase_price'];
+    protected $fillable = ['ticker_symbol', 'share_count', 'purchase_date', 'purchase_price', 'weighted_price'];
 
     /**
      * Gets the user that owns the portfolio

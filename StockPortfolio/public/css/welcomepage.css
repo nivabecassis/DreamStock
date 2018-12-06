@@ -1,0 +1,82 @@
+/* Header */
+.links > a {
+    color: #636b6f;
+    padding: 0 25px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .1rem;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.brand-icon {
+    width: 30px;
+    height: 25px;
+}
+
+.content {
+    text-align: center;
+    color: #FFFFFF;
+}
+
+#color-bg {
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.full-height {
+    height: 100vh;
+}
+
+.flex-center {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.position-ref {
+    position: relative;
+}
+
+.title {
+    font-size: 100px;
+}
+
+.slogan {
+    font-size: 20px;
+}
+
+.nav-text {
+    color: #FFFFFF;
+}
+
+.fa-1x {
+    font-size: 1.5rem;
+}
+.navbar-toggler.toggler-example {
+    cursor: pointer;
+}
+.dark-blue-text {
+    color: #0A38F5;
+}
+.dark-pink-text {
+    color: #AC003A;
+}
+.dark-amber-text {
+    color: #ff6f00;
+}
+.dark-teal-text {
+    color: #004d40;
+}
+
+/* Footer */
+.footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin-bottom: 0;
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    color: #FFFFFF;
+}

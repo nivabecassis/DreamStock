@@ -68,7 +68,7 @@
             </div>
         </div>
         <footer class="footer">
-            <span>© {{ config('app.name', 'Laravel') }} 2019. All Rights Reserved.</span>
+            <span>© {{ config('app.name', 'Laravel').' '.date('Y').'-'.date('Y', strtotime('+1 year')) }}. All Rights Reserved.</span>
         </footer>
     </body>
 </html>

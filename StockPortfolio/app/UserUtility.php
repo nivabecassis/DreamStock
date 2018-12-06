@@ -171,7 +171,7 @@ class UserUtility
                 $portfolio_stock->save();
             }
 
-            if ($stocks->count() <= $maxStocks && $user->portfolios->portfolio_stocks
+            if ($stocks->count() <= $maxStocks && $stocks
                     ->where("ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first()) {
                 self::updateStock($user, $stockInfo, $shares);
             }
@@ -186,19 +186,6 @@ class UserUtility
      */
     public static function canBuyShares($user, $stockInfo, $shares)
     {
-        $stocks = $user->portfolios->portfolio_stocks;
-        $stockCount = $stocks->where("portfolio_id", "=", $user->portfolios->id)->count();
-        $maxStocks = Config::get('constants.options.MAX_STOCKS_FREE_VERSION');
-
-        /*
-         * If the user already has 5 stocks and the one they're trying to purchase shares from
-         * isn't one of the stocks that they already own, they cannot buy the stock
-         */
-        if ($stockCount ===  $maxStocks && !$user->portfolios->where("ticker_symbol", "=",
-                $stockInfo["data"][0]["symbol"])->first()) {
-            return false;
-        }
-
         $priceUSD = CurrencyConverter::convertToUSD($stockInfo["data"][0]["currency"], $stockInfo["data"][0]["price"]);
 
         if ($user->portfolios->cash_owned - 10 >= $priceUSD * $shares) {
@@ -260,5 +247,26 @@ class UserUtility
         $newWeightedPrice = $currentTotalPrice / $currentTotalShares;
 
         return $newWeightedPrice;
+    }
+
+    /**
+     * Checks if the user already has 5 stocks and is trying to purchase more shares
+     * in a company that they don't already own shares in
+     *
+     * @param $user User to check
+     * @return bool Whether they can't buy the shares or not
+     */
+    public static function hasMaxAndCantUpdate($user, $stockInfo)
+    {
+        $stocks = $user->portfolios->portfolio_stocks;
+        $stockCount = $stocks->where("portfolio_id", "=", $user->portfolios->id)->count();
+        $maxStocks = Config::get('constants.options.MAX_STOCKS_FREE_VERSION');
+
+        /*
+         * If the user already has 5 stocks and the one they're trying to purchase shares from
+         * isn't one of the stocks that they already own, they cannot buy the stock
+         */
+        return $stockCount ===  $maxStocks && !$stocks->where("ticker_symbol", "=",
+                $stockInfo["data"][0]["symbol"])->first();
     }
 }

@@ -122,6 +122,10 @@ class HomeController extends Controller
             return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
         }
 
+        if (UserUtility::hasMaxAndCantUpdate($user, $quote)) {
+            return $this->error(['400' => 'You already have shares with 5 different companies']);
+        }
+
         if (is_numeric($shares)) {
             $shares = floor($shares);
             UserUtility::storeStock($user, $quote, $shares);

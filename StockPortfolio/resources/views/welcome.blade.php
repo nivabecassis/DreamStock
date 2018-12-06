@@ -54,7 +54,7 @@
             <div class="flex-center position-ref full-height">
                 <div class="content text-uppercase">
                     <div class="title font-weight-bold">
-                        <span>Dream Stock</span>
+                        <span>{{ config('app.name', 'Laravel') }}</span>
                     </div>
                     <div class="slogan mb-5">
                         <span>Powered by TheBrogrammers ⚡</span>
@@ -68,7 +68,7 @@
             </div>
         </div>
         <footer class="footer">
-            <span>© Dream Stock 2019. All Rights Reserved.</span>
+            <span>© {{ config('app.name', 'Laravel') }} 2019. All Rights Reserved.</span>
         </footer>
     </body>
 </html>

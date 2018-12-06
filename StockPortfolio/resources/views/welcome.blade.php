@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <!-- Title -->
-        <title>Dream Stock</title>
+        <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Scripts -->
         <script src="{{ asset('js/app.js') }}" defer></script>
@@ -23,7 +23,7 @@
             <div class="container nav-text">
                 <a href="{{ url('/') }}" class="navbar-brand">
                     <img src="{{ asset('svg/chart-line-solid.svg') }}" alt="chart line" class="brand-icon">
-                    Dream Stock
+                    {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon" style="background-image: url({{ asset('svg/custom-hamburger.svg') }});"></span>

@@ -20,6 +20,7 @@ class CreatePortfolioStocksTable extends Migration
             $table->integer('share_count')->unsigned();
             $table->timestamp('purchase_date');
             $table->decimal('purchase_price', 10, 2);
+            $table->decimal('weighted_price', 10, 2);
             $table->foreign('portfolio_id')->references('id')->on('portfolios');
         });
     }

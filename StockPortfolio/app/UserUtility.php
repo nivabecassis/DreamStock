@@ -30,18 +30,19 @@ class UserUtility
      * @param $count Int number of shares that will be sold
      * @return bool True if the sale was allowed, false otherwise
      */
-    public static function sellShares($user, $symbol, $count) {
+    public static function sellShares($user, $symbol, $count)
+    {
         $stock = self::findMatchingStock($user, $symbol);
         $ownedShares = $stock->share_count;
-        if($ownedShares > 0 && $ownedShares >= $count) {
+        if ($ownedShares > 0 && $ownedShares >= $count) {
             $amount = self::calcTotalStockValue($symbol, $count);
-            if(self::performTransaction($user, $amount)) {
+            if (self::performTransaction($user, $amount)) {
                 // Transaction approved and executed
                 $stock->share_count -= $count;
                 $stock->save();
 
                 // Delete the record if there are no shares left
-                if($stock->share_count == 0) {
+                if ($stock->share_count == 0) {
                     $stock->delete();
                 }
                 return true;
@@ -58,11 +59,12 @@ class UserUtility
      * @param $count Int number of stocks
      * @return float|int Total value of the stocks
      */
-    public static function calcTotalStockValue($symbol, $count) {
+    public static function calcTotalStockValue($symbol, $count)
+    {
         $data = FinanceAPI::getAllStockInfo([$symbol])['data'][0];
         $currency = $data['currency'];
         $price = $data['price'];
-        if($currency !== 'USD') {
+        if ($currency !== 'USD') {
             $price = CurrencyConverter::convertToUSD($currency, $price);
         }
         return $price * $count;
@@ -75,10 +77,11 @@ class UserUtility
      * @param $symbol
      * @return null if the stock is not found, Portfolio_Stock otherwise
      */
-    public static function findMatchingStock($user, $symbol) {
+    public static function findMatchingStock($user, $symbol)
+    {
         $stocks = $user->portfolios->portfolio_stocks;
-        foreach($stocks as $stock) {
-            if($stock->ticker_symbol === $symbol) {
+        foreach ($stocks as $stock) {
+            if ($stock->ticker_symbol === $symbol) {
                 return $stock;
             }
         }
@@ -139,7 +142,6 @@ class UserUtility
      *
      * @param Request $request
      * @param $symbol Ticker symbol of the company
-     * @return null This will be returned if there is no purchase made
      */
     public static function storeStock($user, $stockInfo, $shares)
     {
@@ -147,6 +149,7 @@ class UserUtility
         $currency = $stockInfo["data"][0]["currency"];
         $price = $stockInfo["data"][0]["price"];
         $symbol = $stockInfo["data"][0]["symbol"];
+        $maxStocks = Config::get('constants.options.MAX_STOCKS_FREE_VERSION');
 
         if (self::canBuyShares($user, $stockInfo, $shares)) {
             /*
@@ -155,7 +158,7 @@ class UserUtility
              */
             self::performTransaction($user, -(CurrencyConverter::convertToUSD($currency, $price) * $shares));
 
-            if ($stocks->count() < 5 && !$user->portfolios->portfolio_stocks
+            if ($stocks->count() < $maxStocks && !$user->portfolios->portfolio_stocks
                     ->where("ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first()) {
                 /* Create new record and set fields */
                 $portfolio_stock = new Portfolio_Stock();
@@ -164,10 +167,11 @@ class UserUtility
                 $portfolio_stock->share_count = $shares;
                 $portfolio_stock->purchase_date = date("Y-m-d H:i:s");
                 $portfolio_stock->purchase_price = $stockInfo["data"][0]["price"];
+                $portfolio_stock->weighted_price = $stockInfo["data"][0]["price"];
                 $portfolio_stock->save();
             }
 
-            if ($stocks->count() <= 5 && $user->portfolios->portfolio_stocks
+            if ($stocks->count() <= $maxStocks && $stocks
                     ->where("ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first()) {
                 self::updateStock($user, $stockInfo, $shares);
             }
@@ -182,18 +186,6 @@ class UserUtility
      */
     public static function canBuyShares($user, $stockInfo, $shares)
     {
-        $stocks = $user->portfolios->portfolio_stocks;
-        $stockCount = $stocks->where("portfolio_id", "=", $user->portfolios->id)->count();
-
-        /*
-         * If the user already has 5 stocks and the one they're trying to purchase shares from
-         * isn't one of the stocks that they already own, they cannot buy the stock
-         */
-        if ($stockCount === 5 && !$user->portfolios->where("ticker_symbol", "=",
-                $stockInfo["data"][0]["symbol"])->first()) {
-            return false;
-        }
-
         $priceUSD = CurrencyConverter::convertToUSD($stockInfo["data"][0]["currency"], $stockInfo["data"][0]["price"]);
 
         if ($user->portfolios->cash_owned - 10 >= $priceUSD * $shares) {
@@ -214,15 +206,67 @@ class UserUtility
      */
     private static function updateStock($user, $stockInfo, $shares)
     {
-        $currency = $stockInfo["data"][0]["currency"];
-        $price = $stockInfo["data"][0]["price"];
-
         $portfolio_stock = $user->portfolios->portfolio_stocks->where(
             "ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first();
 
+        $sharePrice = $stockInfo["data"][0]["price"];
         $portfolio_stock->share_count += $shares;
+        $portfolio_stock->weighted_price = self::getWeightedPrice($portfolio_stock, $shares, $sharePrice);
         $user->portfolios->save();
         $portfolio_stock->save();
+    }
 
+    /**
+     * Determines if the user has enough cash to make the purchase
+     *
+     * @param $user Checks if the authenticated user has enough money
+     * @param $price Price to check if the user has enough money
+     * @return bool Whether user has enough cash or not
+     */
+    public static function hasEnoughCash($user, $price)
+    {
+        return $user->portfolios->cash_owned - Config::get('constants.options.TRANSACT_COST') >= $price;
+    }
+
+    /**
+     * Calculates the weighted price after updating the amount of shares
+     * the user has for a company
+     *
+     * @param $user User to calculate weighted price for
+     * @param $shares Amount of shares the user purchased
+     * @param $price Price of each share
+     * @return double New weighted price
+     */
+    public static function getWeightedPrice($portfolio_stock, $shares, $price)
+    {
+        $lastWeightedPrice = $portfolio_stock->weighted_price;
+        $lastTotalShares = $portfolio_stock->share_count;
+        $lastTotalPrice = $lastWeightedPrice * $lastTotalShares;
+        $currentTotalPrice = ($shares * $price) + $lastTotalPrice;
+        $currentTotalShares = $lastTotalShares + $shares;
+        $newWeightedPrice = $currentTotalPrice / $currentTotalShares;
+
+        return $newWeightedPrice;
+    }
+
+    /**
+     * Checks if the user already has 5 stocks and is trying to purchase more shares
+     * in a company that they don't already own shares in
+     *
+     * @param $user User to check
+     * @return bool Whether they can't buy the shares or not
+     */
+    public static function hasMaxAndCantUpdate($user, $stockInfo)
+    {
+        $stocks = $user->portfolios->portfolio_stocks;
+        $stockCount = $stocks->where("portfolio_id", "=", $user->portfolios->id)->count();
+        $maxStocks = Config::get('constants.options.MAX_STOCKS_FREE_VERSION');
+
+        /*
+         * If the user already has 5 stocks and the one they're trying to purchase shares from
+         * isn't one of the stocks that they already own, they cannot buy the stock
+         */
+        return $stockCount ===  $maxStocks && !$stocks->where("ticker_symbol", "=",
+                $stockInfo["data"][0]["symbol"])->first();
     }
 }

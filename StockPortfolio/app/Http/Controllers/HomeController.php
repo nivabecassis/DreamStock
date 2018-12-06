@@ -46,6 +46,8 @@ class HomeController extends Controller
                 $data['action'] = 'sell';
             } else if (strtolower($type) == 'buy') {
                 $data['action'] = 'buy';
+            } else {
+                $this->error(['400' => 'Invalid request']);
             }
         } else {
             $data = [
@@ -86,8 +88,15 @@ class HomeController extends Controller
         // Access the share count from the form
         $shareCount = $request->input('share_count');
 
-        // Execute the sale, validation is done within this function
-        UserUtility::sellShares($user, $symbol, $shareCount);
+        if (is_numeric($shareCount)) {
+            $shareCount = floor($shareCount);
+            // Execute the sale, validation is done within this function
+            if(!UserUtility::sellShares($user, $symbol, $shareCount)) {
+                $this->error(['401' => 'Insufficient cash']);
+            }
+        } else {
+            return $this->error(['400' => 'Invalid number of stocks entered']);
+        }
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();
@@ -100,17 +109,34 @@ class HomeController extends Controller
      *
      * @param Request $request
      * @param $symbol Ticker of company
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     function purchaseStock(Request $request, $symbol)
     {
         $user = Auth::user();
         $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
         $shares = $request->input("share_count");
-        UserUtility::storeStock($user, $quote, $shares);
+        $cost = CurrencyConverter::convertToUSD($quote["data"][0]["currency"], $quote["data"][0]["price"]) * $shares;
+
+        if (!UserUtility::hasEnoughCash($user, $cost)) {
+            return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
+        }
+
+        if (UserUtility::hasMaxAndCantUpdate($user, $quote)) {
+            return $this->error(['400' => 'You already have shares with 5 different companies']);
+        }
+
+        if (is_numeric($shares)) {
+            $shares = floor($shares);
+            UserUtility::storeStock($user, $quote, $shares);
+        } else {
+            return $this->error(['400' => 'Invalid number of stocks entered']);
+        }
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();
+
+
 
         return redirect()->route('home', $data);
     }
@@ -371,6 +397,18 @@ class HomeController extends Controller
         $str = strip_tags($str);
         $str = htmlentities($str);
         return $str;
+    }
+
+    /**
+     * Redirect to the error page with the given. Default is 500.
+     *
+     * @param array $errors errors encountered. Associative array: key = code
+     * value = message.
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    private function error($errors = array())
+    {
+        return view('common.errors', ['errors' => $errors]);
     }
 
 }

@@ -91,8 +91,10 @@ class HomeController extends Controller
         if (is_numeric($shareCount)) {
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
-            if(!UserUtility::sellShares($user, $symbol, $shareCount)) {
-                $this->error(['401' => 'Insufficient cash']);
+            $response = UserUtility::sellShares($user, $symbol, $shareCount);
+            if(count($response) > 0) {
+                // String returned from sellShares is an error message
+                $this->error($response);
             }
         } else {
             return $this->error(['400' => 'Invalid number of stocks entered']);

@@ -10,7 +10,7 @@
                     <div class="m-2 d-inline">Default currency: USD</div>
                     <div class="m-2 d-inline">Current value: ${{$portfolio['value']}}</div>
                     <div class="m-2 d-inline">Last close value: ${{$portfolio['closeValue']}}</div>
-                    <div class="m-2 d-inline">Portfolio change (%): {{$portfolio['portfolio_change']}}</div>
+                    <div class="m-2 d-inline">Portfolio change (%): {{$portfolio['portfolioChange']}}</div>
                 </div>
             </div>
         @endif
@@ -135,7 +135,7 @@
                         <label for="ticker_symbol" class="control-label input-label">Get quotes for: </label>
                     </div>
                     <div class="d-inline">
-                        <input type="text" name="ticker_symbol" id="ticker_symbol" class="form-control input-text ml-2">
+                        <input required type="text" name="ticker_symbol" id="ticker_symbol" class="form-control input-text ml-2">
                     </div>
                     <div class="d-inline">
                         <button type="submit" class="btn btn-default">

@@ -26,11 +26,15 @@ class HomeController extends Controller
 
     public function quotes(Request $request)
     {
-        $allQuotes = FinanceAPI::getAllStockInfo(explode(",", $request->input("ticker_symbol")));
-        $data = $this->getDataForView();
-        $data["quotes"] = $allQuotes;
+        $symbol = $this->sanitize($request->input("ticker_symbol"));
+        if (is_string($symbol)) {
+            $allQuotes = FinanceAPI::getAllStockInfo(explode(",", $symbol));
+            $data = $this->getDataForView();
+            $data["quotes"] = $allQuotes;
 
-        return view("/home", $data);
+            return view("/home", $data);
+        }
+        return $this->error(['400' => 'Inputted symbol is invalid!']);
     }
 
 
@@ -92,7 +96,7 @@ class HomeController extends Controller
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
             $response = UserUtility::sellShares($user, $symbol, $shareCount);
-            if($response !== true) {
+            if ($response !== true) {
                 // String returned from sellShares is an error message
                 return $this->error($response);
             }
@@ -137,7 +141,6 @@ class HomeController extends Controller
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();
-
 
 
         return redirect()->route('home', $data);
@@ -346,17 +349,19 @@ class HomeController extends Controller
 
         $value = 0;
         $closeValue = 0;
+        $portfolioChange = 0;
         if (count($stocks) > 0 && count($shareCounts) > 0) {
             $value = $portfolioController->getPortfolioValue($stocks, $shareCounts);
             $closeValue = $portfolioController->getPortfolioLastCloseValue($stocks, $shareCounts);
+            $portfolioChange = UserUtility::getPercentageChange($value, $closeValue);
         }
 
         return [
             'cash' => $user->portfolios->cash_owned,
+            'since' => self::getDateFromTimestamp($user->created_at),
             'value' => $value,
             'closeValue' => $closeValue,
-            'since' => self::getDateFromTimestamp($user->created_at),
-            'portfolio_change' => UserUtility::getPercentageChange($value, $closeValue),
+            'portfolioChange' => $portfolioChange,
         ];
     }
 
@@ -395,6 +400,12 @@ class HomeController extends Controller
         return substr($tm, 0, $pos);
     }
 
+    /**
+     * Strips any html tags and returns the string.
+     *
+     * @param string $str string to validate
+     * @return string after sanitation
+     */
     private function sanitize($str)
     {
         $str = strip_tags($str);

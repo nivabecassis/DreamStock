@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Auth;
 use App\User;
 use App\FinanceAPI;
+use App\UserUtility;
 
 /*
  * Portfolio controller
@@ -39,11 +40,8 @@ class PortfolioController extends Controller
         $portfolioLastCloseValue = $this->getPortfolioLastCloseValue($data, $tickers);
 
         // Gets percentage change between current and last daily close portfolio value
-        $percentageChange = $this->getPercentageChange($portfolioValue, $portfolioLastCloseValue);
+        $percentageChange = UserUtility::getPercentageChange($portfolioValue, $portfolioLastCloseValue);
 
-//        return view('home', [
-//            'portfolioValue' => $portfolioValue,
-//        ]);
         return view('buying_stocks.get_quotes');
     }
 
@@ -88,18 +86,6 @@ class PortfolioController extends Controller
 
         // Returns sum of all prices
         return $this->sumAll($prices);
-    }
-
-    /**
-     * Gets percentage change between current and last daily close portfolio value
-     * 
-     * @param decimal Current portfolio value
-     * @param decimal Last daily close portfolio value
-     * @return decimal Percentage change
-     */
-    public function getPercentageChange($current, $lastClose) 
-    {
-        return number_format((($current - $lastClose) / $lastClose) * 100, 3); // 3 values after decimal point
     }
 
     /**

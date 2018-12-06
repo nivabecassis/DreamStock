@@ -57,7 +57,7 @@
                         <span>{{ config('app.name', 'Laravel') }}</span>
                     </div>
                     <div class="slogan mb-5">
-                        <span>Powered by TheBrogrammers ⚡</span>
+                        <span>⚡ Powered by TheBrogrammers</span>
                     </div>
                     @guest
                         @if (Route::has('register'))

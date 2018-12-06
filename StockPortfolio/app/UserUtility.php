@@ -142,7 +142,6 @@ class UserUtility
      *
      * @param Request $request
      * @param $symbol Ticker symbol of the company
-     * @return null This will be returned if there is no purchase made
      */
     public static function storeStock($user, $stockInfo, $shares)
     {
@@ -150,6 +149,7 @@ class UserUtility
         $currency = $stockInfo["data"][0]["currency"];
         $price = $stockInfo["data"][0]["price"];
         $symbol = $stockInfo["data"][0]["symbol"];
+        $maxStocks = Config::get('constants.options.MAX_STOCKS_FREE_VERSION');
 
         if (self::canBuyShares($user, $stockInfo, $shares)) {
             /*
@@ -158,7 +158,7 @@ class UserUtility
              */
             self::performTransaction($user, -(CurrencyConverter::convertToUSD($currency, $price) * $shares));
 
-            if ($stocks->count() < 5 && !$user->portfolios->portfolio_stocks
+            if ($stocks->count() < $maxStocks && !$user->portfolios->portfolio_stocks
                     ->where("ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first()) {
                 /* Create new record and set fields */
                 $portfolio_stock = new Portfolio_Stock();
@@ -171,7 +171,7 @@ class UserUtility
                 $portfolio_stock->save();
             }
 
-            if ($stocks->count() <= 5 && $user->portfolios->portfolio_stocks
+            if ($stocks->count() <= $maxStocks && $user->portfolios->portfolio_stocks
                     ->where("ticker_symbol", "=", $stockInfo["data"][0]["symbol"])->first()) {
                 self::updateStock($user, $stockInfo, $shares);
             }
@@ -188,12 +188,13 @@ class UserUtility
     {
         $stocks = $user->portfolios->portfolio_stocks;
         $stockCount = $stocks->where("portfolio_id", "=", $user->portfolios->id)->count();
+        $maxStocks = Config::get('constants.options.MAX_STOCKS_FREE_VERSION');
 
         /*
          * If the user already has 5 stocks and the one they're trying to purchase shares from
          * isn't one of the stocks that they already own, they cannot buy the stock
          */
-        if ($stockCount === 5 && !$user->portfolios->where("ticker_symbol", "=",
+        if ($stockCount ===  $maxStocks && !$user->portfolios->where("ticker_symbol", "=",
                 $stockInfo["data"][0]["symbol"])->first()) {
             return false;
         }

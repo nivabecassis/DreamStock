@@ -119,7 +119,7 @@ class HomeController extends Controller
         if (!UserUtility::hasEnoughCash($user, $cost)) {
             return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
         }
-        
+
         if (is_numeric($shares)) {
             $shares = floor($shares);
             UserUtility::storeStock($user, $quote, $shares);

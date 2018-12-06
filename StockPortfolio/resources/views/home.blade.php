@@ -118,7 +118,7 @@
                     <h2>{{ $errorMsg }}</h2>
                 </div>
             </div>
-        @endif
+    @endif
 
 
     <!-- Buy stock form -->
@@ -193,48 +193,6 @@
             @endif
         </div>
         </form>
-
-        <!-- Get quotes -->
-        @if(isset($quotes) && !isset($quotes["data"]))
-            <h1>No quotes available</h1>
-        @elseif(isset($quotes) && count($quotes["data"]) > 0)
-
-            <table class="table-borderless">
-                <thead>
-                <tr class="stock_record rounded">
-                    <th scope="col">Company symbol</th>
-                    <th scope="col">Company name</th>
-                    <th scope="col">Shares</th>
-                    <th scope="col">Price</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                @foreach ($quotes["data"] as $quote)
-
-                    <tr>
-                        <td>{{$quote["symbol"]}}</td>
-                        <td>{{$quote["name"]}}</td>
-                        <td>{{$quote["shares"]}}</td>
-                        <td>{{$quote["price"]}}</td>
-                        <td>
-                            <form action={{url("/home/transaction/buy/" . $quote["symbol"])}} method="POST">
-                                {{ csrf_field() }}
-                                <button type="submit" id="shares">
-                                    Buy stock
-                                </button>
-                                <input type="text" name="share_count" id="shares">
-                            </form>
-                        </td>
-                    </tr>
-
-                </tbody>
-                @endforeach
-
-            </table>
-
     </div>
-
-
 
 @endsection

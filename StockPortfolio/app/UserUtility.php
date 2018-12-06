@@ -225,4 +225,11 @@ class UserUtility
         $portfolio_stock->save();
 
     }
+
+    /**
+     * Determines if the user has enough cash to make the purchase
+     */
+    public static function hasEnoughCash($user, $price) {
+        return $user->portfolios->cash_owned - 10 >= $price;
+    }
 }

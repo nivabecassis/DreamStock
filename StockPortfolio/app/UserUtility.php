@@ -52,7 +52,8 @@ class UserUtility
                 $response = ['401' => 'Insufficient cash!'];
             }
         } else {
-            $response = ['401' => 'Attempting to sell '.$count.' shares. You own '.$ownedShares];
+            $response = ['401' => "$symbol: Attempting to sell $count 
+                shares. You own $ownedShares"];
         }
         return $response;
     }

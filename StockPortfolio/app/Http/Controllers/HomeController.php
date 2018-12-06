@@ -92,9 +92,9 @@ class HomeController extends Controller
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
             $response = UserUtility::sellShares($user, $symbol, $shareCount);
-            if(count($response) > 0) {
+            if($response !== true) {
                 // String returned from sellShares is an error message
-                $this->error($response);
+                return $this->error($response);
             }
         } else {
             return $this->error(['400' => 'Invalid number of stocks entered']);
@@ -315,7 +315,7 @@ class HomeController extends Controller
             'currency' => $data['currency'],
             'price' => $data['price'],
             'close_yesterday' => $data['close_yesterday'],
-            'change' => $data['day_change'],
+            'change' => $data['change_pct'],
         ];
     }
 

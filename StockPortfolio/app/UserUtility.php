@@ -28,12 +28,14 @@ class UserUtility
      * @param $user User
      * @param $symbol
      * @param $count Int number of shares that will be sold
-     * @return bool True if the sale was allowed, false otherwise
+     * @return bool true if transaction is authorized. Otherwise, associative
+     * array returned. Key: error code, value: error message.
      */
     public static function sellShares($user, $symbol, $count)
     {
         $stock = self::findMatchingStock($user, $symbol);
         $ownedShares = $stock->share_count;
+        $response = false;
         if ($ownedShares > 0 && $ownedShares >= $count) {
             $amount = self::calcTotalStockValue($symbol, $count);
             if (self::performTransaction($user, $amount)) {
@@ -45,10 +47,15 @@ class UserUtility
                 if ($stock->share_count == 0) {
                     $stock->delete();
                 }
-                return true;
+                $response = true;
+            } else {
+                $response = ['401' => 'Insufficient cash!'];
             }
+        } else {
+            $response = ['401' => "$symbol: Attempting to sell $count 
+                shares. You own $ownedShares"];
         }
-        return false;
+        return $response;
     }
 
     /**

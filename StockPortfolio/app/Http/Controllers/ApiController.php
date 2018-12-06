@@ -69,6 +69,18 @@ class ApiController extends Controller
         }
     }
 
+    /**
+     * Returns the amount of cash that the currently signed-in
+     * user has left in his account.
+     * If the user has no cash left, 0 will be returned.
+     *
+     * Method type: GET
+     * Success response: 200
+     * Error response: 401
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getCash(Request $request)
     {
         $user = auth('api')->user();

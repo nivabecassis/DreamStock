@@ -7,6 +7,7 @@ use App\UserUtility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Config;
 
 class ApiController extends Controller
 {
@@ -76,6 +77,7 @@ class ApiController extends Controller
      * Success response: 200
      * Error response: 400 => invalid_token
      *                 401 => invalid_ticker_or_quantity
+     *                 403 => insufficient_cash
      * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -94,6 +96,11 @@ class ApiController extends Controller
             return response()->json(['error' => 'invalid_token'], 401);
         }
 
+        // Checks if user has enough cash to sell
+        if (!$this->hasEnoughCash($user)) {
+            return response()->json(['error' => 'insufficient_cash'], 403);
+        }
+
         // Checks if ticker and quantity are valid
         if (!$this->isValidSellTicker($user, $ticker) || !$this->isValidSellQuantity($user, $quantity, $ticker)) {
             return response()->json(['error' => 'invalid_ticker_or_quantity'], 400);
@@ -105,8 +112,29 @@ class ApiController extends Controller
     }
 
     /**
+     * Checks if user is available to sell its stock(s) by verifying
+     * if the cash he owns is greater than the transaction fee
+     *
+     * @param $user Authenticated user
+     * @return bool True if user has enough cash else false
+     */
+    private function hasEnoughCash($user)
+    {
+        // Load cash_owned data
+        $cash = $user->portfolios->cash_owned;
+
+        // Check if user's cash is greater than the transaction fee
+        if ($cash < Config::get('constants.options.TRANSACT_COST')) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Checks if quantity is valid
      * 
+     * @param $user Authenticated user
      * @param integer Quantity number
      * @param string Ticker name
      * @return bool True if it's valid else false
@@ -134,6 +162,7 @@ class ApiController extends Controller
     /**
      * Checks if ticker is valid
      * 
+     * @param $user Authenticated user
      * @param string Ticker name
      * @return bool True if it's valid else false
      */

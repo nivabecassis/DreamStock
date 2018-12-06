@@ -238,7 +238,7 @@ class UserUtility
      */
     public static function hasEnoughCash($user, $price)
     {
-        return $user->portfolios->cash_owned - 10 >= $price;
+        return $user->portfolios->cash_owned - Config::get('constants.options.TRANSACT_COST') >= $price;
     }
 
     /**

@@ -356,6 +356,7 @@ class HomeController extends Controller
             'value' => $value,
             'closeValue' => $closeValue,
             'since' => self::getDateFromTimestamp($user->created_at),
+            'portfolio_change' => UserUtility::getPercentageChange($value, $closeValue),
         ];
     }
 

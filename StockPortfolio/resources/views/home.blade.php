@@ -176,7 +176,7 @@
                                             <form class="p-2"
                                                   action={{url("/home/transaction/buy/" . $quote["symbol"])}} method="POST">
                                                 {{ csrf_field() }}
-                                                <input type="text" name="share_count" id="shares" class="">
+                                                <input required type="text" name="share_count" id="shares" class="">
                                                 <button type="submit" id="shares" class="btn d-inline ml-2">
                                                     Buy stock
                                                 </button>

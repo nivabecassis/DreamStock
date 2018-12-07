@@ -168,15 +168,15 @@
                                 <tbody>
                                 @foreach ($quotes["data"] as $quote)
                                     <tr class="stock_record rounded">
-                                        <td scope="col">{{$quote["symbol"]}}</td>
-                                        <td scope="col">{{$quote["name"]}}</td>
-                                        <td scope="col">{{$quote["shares"]}}</td>
-                                        <td scope="col">{{$quote["price"]}}</td>
-                                        <td scope="col">
-                                            <form class="p-2"
+                                        <td scope="col" class="p-2">{{$quote["symbol"]}}</td>
+                                        <td scope="col" class="p-2">{{$quote["name"]}}</td>
+                                        <td scope="col" class="p-2">{{$quote["shares"]}}</td>
+                                        <td scope="col" class="p-2">{{$quote["price"]}}</td> 
+                                        <td scope="col" class="p-2">
+                                            <form class="form-inline justify-content-center"
                                                   action={{url("/home/transaction/buy/" . $quote["symbol"])}} method="POST">
                                                 {{ csrf_field() }}
-                                                <input required type="text" name="share_count" id="shares" class="">
+                                                <input required type="number" name="share_count" id="shares" class="form-control">
                                                 <button type="submit" id="shares" class="btn d-inline ml-2">
                                                     Buy stock
                                                 </button>

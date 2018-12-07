@@ -24,17 +24,29 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Performs quoting on inputted strings. Calls API to get
+     * information about each symbol. Symbols can be delimited by the
+     * following characters: {",", " ", "-", ";", ":"}. Spaces are
+     * are omitted.
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function quotes(Request $request)
     {
-        $symbol = $this->sanitize($request->input("ticker_symbol"));
+        $symbol = trim($this->sanitize($request->input("ticker_symbol")));
         if (is_string($symbol) && strlen($symbol) > 0) {
-            $allQuotes = FinanceAPI::getAllStockInfo(explode(",", $symbol));
-            $data = $this->getDataForView();
-            $data["quotes"] = $allQuotes;
+            $symbols = preg_split("/(,| |-|;|:)/", $symbol, -1, PREG_SPLIT_NO_EMPTY);
+            if (count($symbols) > 0) {
+                $allQuotes = FinanceAPI::getAllStockInfo($symbols);
+                $data = $this->getDataForView();
+                $data["quotes"] = $allQuotes;
 
-            return view("/home", $data);
+                return view("/home", $data);
+            }
         }
-        return $this->error(['400' => 'Inputted symbol is invalid!']);
+        return $this->error(['400' => 'Inputted symbol(s) is invalid!']);
     }
 
     /**

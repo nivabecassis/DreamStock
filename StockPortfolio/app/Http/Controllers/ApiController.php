@@ -95,6 +95,7 @@ class ApiController extends Controller
             //Get the amount of cash that the user currently holds
             $cashRemaining = DB::table('users')
                 ->join('portfolios', 'users.id', '=', 'portfolios.user_id')
+                ->where('users.id', '=', $user->id)
                 ->select('cash_owned')
                 ->get();
             return response()->json($cashRemaining, 200);

@@ -6,7 +6,7 @@ If you're new to our services please feel free to look around and read the docum
 
 We hope you will enjoy using our Web Application! Any feedback is always appreciated!
 
-> Link goes here
+http://dreamstock.herokuapp.com/
 
 ## Instructions
 

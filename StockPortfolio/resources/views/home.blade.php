@@ -10,7 +10,7 @@
                     <div class="m-2 d-inline">Default currency: USD</div>
                     <div class="m-2 d-inline">Current value: ${{$portfolio['value']}}</div>
                     <div class="m-2 d-inline">Last close value: ${{$portfolio['closeValue']}}</div>
-                    <div class="m-2 d-inline">Portfolio change (%): {{$portfolio['portfolioChange']}}</div>
+                    <div class="m-2 d-inline">Portfolio change: %{{$portfolio['portfolioChange']}}</div>
                 </div>
             </div>
         @endif

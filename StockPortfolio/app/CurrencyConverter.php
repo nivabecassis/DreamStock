@@ -4,6 +4,10 @@ namespace App;
 
 use App\ApiUri;
 
+/**
+ * CurrencyConverter is a utility class responsible for converter any type
+ * of currency into USD.
+ */
 class CurrencyConverter
 {
     /**

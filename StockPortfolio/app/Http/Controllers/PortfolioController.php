@@ -8,41 +8,18 @@ use App\FinanceAPI;
 use App\UserUtility;
 
 /*
- * Portfolio controller
- *
- * @author Austin Antoine
- * @author Stephen Kwan
+ * PortfolioController is a controller class which performs 'Read' action against our database.
+ * It retrieves the information, manipulates it and returns:
+ * 1) User's balance
+ * 2) User's total portfolio value
+ * 3) User's total last daily close portfolio value
+ * 4) User's share count of each individual company
  */
 class PortfolioController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
-    }
-
-    public function index()
-    {
-        // Gets current authenticated user
-        $user = Auth::user();
-
-        // Loads metadata
-        $json = $this->loadMetadata($user);
-        $data = $json['info']['data'];
-        $tickers = $json['tickers'];
-
-        // Gets user's balance
-        $balance = $this->getBalance($user);
-
-        // Gets current portfolio value
-        $portfolioValue = $this->getPortfolioValue($data, $tickers);
-
-        // Gets last daily close portfolio value
-        $portfolioLastCloseValue = $this->getPortfolioLastCloseValue($data, $tickers);
-
-        // Gets percentage change between current and last daily close portfolio value
-        $percentageChange = UserUtility::getPercentageChange($portfolioValue, $portfolioLastCloseValue);
-
-        return view('buying_stocks.get_quotes');
     }
 
     /**

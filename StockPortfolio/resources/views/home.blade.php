@@ -6,11 +6,11 @@
             <div class="row justify-content-center mb-3">
                 <div class="header p-3">
                     <div class="m-2 d-inline">Balance: ${{$portfolio['cash']}}</div>
-                    <div class="m-2 d-inline">Member since: {{$portfolio['since']}}</div>
+                    <div class="m-2 d-inline">Member since: {{$portfolio['since']}} UTC</div>
                     <div class="m-2 d-inline">Default currency: USD</div>
                     <div class="m-2 d-inline">Current value: ${{$portfolio['value']}}</div>
                     <div class="m-2 d-inline">Last close value: ${{$portfolio['closeValue']}}</div>
-                    <div class="m-2 d-inline">Portfolio change: %{{$portfolio['portfolioChange']}}</div>
+                    <div class="m-2 d-inline">Portfolio change: {{$portfolio['portfolioChange']}}%</div>
                 </div>
             </div>
         @endif
@@ -19,7 +19,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-12">
                     <div class="card">
-                        <table class="table-borderless">
+                        <table class="table-borderless table-responsive-md">
                             <thead>
                             <tr>
                                 <th scope="col">Symbol</th>
@@ -68,7 +68,7 @@
                 <form action="{{ url('/home/transaction/' . $action .'/'.$stockPerform['symbol']) }}" method="POST">
                     <div class="card">
                         {{ csrf_field() }}
-                        <table class="table-borderless">
+                        <table class="table-borderless table-responsive-md">
                             <thead>
                             <tr>
                                 <th scope="col">Symbol</th>
@@ -154,7 +154,7 @@
                 <div class="row justify-content-center">
                     <div class="col-md-12">
                         <div class="card">
-                            <table class="table-borderless">
+                            <table class="table-borderless table-responsive-md">
                                 <thead>
                                 <tr>
                                     <th scope="col">Company symbol</th>

@@ -32,7 +32,7 @@ Route::group([
 });
 
 Route::get('/allstocks', 'ApiController@getAllStocks');
-Route::get('/allstocks', 'ApiController@getCash');
+Route::get('/api/cash', 'ApiController@getCash');
 Route::post('/api/buy', 'ApiController@buyStock')->middleware('api');
 Route::post('/api/sell', 'ApiController@sellStock')->middleware('api');
 

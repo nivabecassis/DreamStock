@@ -48,7 +48,7 @@ class HomeController extends Controller
         if (is_string($symbol) && strlen($symbol) > 0) {
             $symbols = preg_split("/(,| |-|;|:)/", $symbol, -1, PREG_SPLIT_NO_EMPTY);
             if (count($symbols) > 0) {
-                $allQuotes = FinanceAPI::getAllStockInfo($symbols);
+                $allQuotes = $this->hasNoMoreRequests($symbols);
                 $data = $this->getDataForView();
                 $data["quotes"] = $allQuotes;
 
@@ -146,7 +146,7 @@ class HomeController extends Controller
     function purchaseStock(Request $request, $symbol)
     {
         $user = Auth::user();
-        $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
+        $quote = $this->hasNoMoreRequests(explode(",", $symbol));
         $shares = $this->sanitize($request->input("share_count"));
 
         if (is_numeric($shares) && $shares > 0) {
@@ -256,8 +256,9 @@ class HomeController extends Controller
         $shareCounts = array();
         // Get data associated with each stock
         if (count($tickers) > 0) {
+            $stocksData = array();
             // Array of stock data (comes from API call)
-            $stocksData = FinanceAPI::getAllStockInfo($tickers)['data'];
+            $stocksInfo = $this->hasNoMoreRequests($tickers);
             // Returns a single array containing all the necessary information
             // for stocks with pricing in USD.
             $stocks = $this->getStocksInfo($dbStocks, $stocksData);
@@ -273,6 +274,22 @@ class HomeController extends Controller
             'portfolio' => $portfolioDetails,
             'stocks' => $stocks,
         ];
+    }
+
+    /**
+     * Checks if there are API requests available.
+     * 
+     * @param $tickers User's tickers input
+     * @return array If available, returns stoacks data; if not, returns error view
+     */
+    private function hasNoMoreRequests($tickers)
+    {
+        $stocksInfo = FinanceAPI::getAllStockInfo($tickers);
+        if (isset($stocksInfo['data'])) {
+            return $stocksInfo['data'];
+        } else {
+            return $this->error(['400' => 'Daily API request has reached its limit for today']);   
+        }
     }
 
     /**
@@ -450,5 +467,4 @@ class HomeController extends Controller
     {
         return view('common.errors', ['errors' => $errors]);
     }
-
 }

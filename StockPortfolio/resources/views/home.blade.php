@@ -19,7 +19,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-12">
                     <div class="card">
-                        <table class="table-borderless">
+                        <table class="table-borderless table-responsive-md">
                             <thead>
                             <tr>
                                 <th scope="col">Symbol</th>
@@ -68,7 +68,7 @@
                 <form action="{{ url('/home/transaction/' . $action .'/'.$stockPerform['symbol']) }}" method="POST">
                     <div class="card">
                         {{ csrf_field() }}
-                        <table class="table-borderless">
+                        <table class="table-borderless table-responsive-md">
                             <thead>
                             <tr>
                                 <th scope="col">Symbol</th>
@@ -154,7 +154,7 @@
                 <div class="row justify-content-center">
                     <div class="col-md-12">
                         <div class="card">
-                            <table class="table-borderless">
+                            <table class="table-borderless table-responsive-md">
                                 <thead>
                                 <tr>
                                     <th scope="col">Company symbol</th>

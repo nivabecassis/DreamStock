@@ -10,6 +10,7 @@
                     <div class="m-2 d-inline">Default currency: USD</div>
                     <div class="m-2 d-inline">Current value: ${{$portfolio['value']}}</div>
                     <div class="m-2 d-inline">Last close value: ${{$portfolio['closeValue']}}</div>
+                    <div class="m-2 d-inline">Portfolio change: %{{$portfolio['portfolioChange']}}</div>
                 </div>
             </div>
         @endif
@@ -134,7 +135,7 @@
                         <label for="ticker_symbol" class="control-label input-label">Get quotes for: </label>
                     </div>
                     <div class="d-inline">
-                        <input type="text" name="ticker_symbol" id="ticker_symbol" class="form-control input-text ml-2">
+                        <input required type="text" name="ticker_symbol" id="ticker_symbol" class="form-control input-text ml-2">
                     </div>
                     <div class="d-inline">
                         <button type="submit" class="btn btn-default">
@@ -147,7 +148,7 @@
 
             <!-- Get quotes -->
             @if(isset($quotes) && !isset($quotes["data"]))
-                <h1>No quotes available</h1>
+                <h3>No quotes available</h3>
             @elseif(isset($quotes) && count($quotes["data"]) > 0)
 
                 <div class="row justify-content-center">
@@ -167,15 +168,15 @@
                                 <tbody>
                                 @foreach ($quotes["data"] as $quote)
                                     <tr class="stock_record rounded">
-                                        <td scope="col">{{$quote["symbol"]}}</td>
-                                        <td scope="col">{{$quote["name"]}}</td>
-                                        <td scope="col">{{$quote["shares"]}}</td>
-                                        <td scope="col">{{$quote["price"]}}</td>
-                                        <td scope="col">
-                                            <form class="p-2"
+                                        <td scope="col" class="p-2">{{$quote["symbol"]}}</td>
+                                        <td scope="col" class="p-2">{{$quote["name"]}}</td>
+                                        <td scope="col" class="p-2">{{$quote["shares"]}}</td>
+                                        <td scope="col" class="p-2">{{$quote["price"]}}</td> 
+                                        <td scope="col" class="p-2">
+                                            <form class="form-inline justify-content-center"
                                                   action={{url("/home/transaction/buy/" . $quote["symbol"])}} method="POST">
                                                 {{ csrf_field() }}
-                                                <input type="text" name="share_count" id="shares" class="">
+                                                <input required type="number" name="share_count" id="shares" class="form-control">
                                                 <button type="submit" id="shares" class="btn d-inline ml-2">
                                                     Buy stock
                                                 </button>

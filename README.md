@@ -32,3 +32,47 @@ We also had the option of using the Alpha Vantage API however, we decided to use
 This could be an issue for us because we need to call the API quite a few times while testing and some times, we realize we are missing a semi colon somewhere and we get an exception and wasted one of our API calls for that minute. It sounds minor but considering there were four of us working
 on it at the same time, we thought this could become problematic and a time waster. We only ran out of API calls for the day with World Trading Data twice and what we did to deal with this was another team member signed up and got a free key. After this, we never had any issues with using up our API calls. We could've done the same thing with Alpha Vantage but then there's the actual JSON that the 2 APIs return. We felt that the World Trading Data had everything that we needed and was very easy to access but didn't see the same accessibility in the JSON returned by the example query on the Alpha Vantage website.
 
+## Database & Tables
+
+Three tables are used to build this stock portfolio finance website:  
+> 1. users
+> 2. portfolios
+> 3. portfolio_stocks
+
+The relationship between the tables are as the following details below:
+
+> * users <-- 1:1 --> portfolios (1 to 1).
+> * portfolios -- 1:* --> portfolio_stocks (1 to many).
+___
+
+| users             | type         |
+|-------------------|--------------|
+| id                | int          |
+| name              | string       |
+| email             | string       |
+| email_verified_at | timestamp    |
+| password          | string       |
+| remember_token    | varchar(100) |
+| created_at        | timestamp    |
+| updated_at        | timestamp    |
+___
+
+| portfolios | type           |
+|------------|----------------|
+| id         | int            |
+| user_id    | int            |
+| cash_owned | decimal(10, 2) |
+
+___
+
+| portfolio_stocks | type           |
+|------------------|----------------|
+| id               | int            |
+| ticker_symbol    | string         |
+| portfolio_id     | int            |
+| share_count      | int            |
+| purchase_date    | timestamp      |
+| purchase_price   | decimal(10, 2) |
+| weighted_price   | decimal(10, 2) |
+
+

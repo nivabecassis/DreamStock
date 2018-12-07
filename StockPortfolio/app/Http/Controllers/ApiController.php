@@ -70,6 +70,39 @@ class ApiController extends Controller
     }
 
     /**
+     * Returns the amount of cash that the currently signed-in
+     * user has left in his account.
+     * If the user has no cash left, 0 will be returned.
+     *
+     * Method type: GET
+     * Success response: 200
+     * Error response: 401
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCash(Request $request)
+    {
+        $user = auth('api')->user();
+
+        //Check if the user is authenticated
+        if(!isset($user))
+        {
+            return response()->json(['error' => 'invalid_token'], 401);
+        }
+        else
+        {
+            //Get the amount of cash that the user currently holds
+            $cashRemaining = DB::table('users')
+                ->join('portfolios', 'users.id', '=', 'portfolios.user_id')
+                ->where('users.id', '=', $user->id)
+                ->select('cash_owned')
+                ->get();
+            return response()->json($cashRemaining, 200);
+        }
+    }
+
+    /**
      * Performs sell share action against the database and returns 
      * the user's remaining cash.
      * 

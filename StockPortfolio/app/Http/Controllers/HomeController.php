@@ -12,6 +12,15 @@ use Illuminate\Http\Request;
 
 use App\ApiUri;
 
+/**
+ * Class HomeController contains all the functionality needed for processing
+ * data that will be displayed on the homepage of the web application.
+ *
+ * Base endpoint functions such as buy, sell, and transaction are located in
+ * this class.
+ *
+ * @package App\Http\Controllers
+ */
 class HomeController extends Controller
 {
     /**

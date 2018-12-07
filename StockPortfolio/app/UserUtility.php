@@ -14,7 +14,13 @@ use App\CurrencyConverter;
 
 /**
  * Class UserUtility provides user related actions through the use
- * of public static functions.
+ * of public static functions. Functions in this class allow actions
+ * on a user object that is generally passed as parameters. As such,
+ * this allows them to perform modifications to their balance or their
+ * number of stocks for example.
+ *
+ * Base functions such as sellShares and storeStock are used by
+ * the Web Application and the Web API.
  *
  * @package App
  */

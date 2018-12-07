@@ -148,7 +148,7 @@
 
             <!-- Get quotes -->
             @if(isset($quotes) && !isset($quotes["data"]))
-                <h1>No quotes available</h1>
+                <h3>No quotes available</h3>
             @elseif(isset($quotes) && count($quotes["data"]) > 0)
 
                 <div class="row justify-content-center">

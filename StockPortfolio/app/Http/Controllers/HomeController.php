@@ -27,7 +27,7 @@ class HomeController extends Controller
     public function quotes(Request $request)
     {
         $symbol = $this->sanitize($request->input("ticker_symbol"));
-        if (is_string($symbol)) {
+        if (is_string($symbol) && strlen($symbol) > 0) {
             $allQuotes = FinanceAPI::getAllStockInfo(explode(",", $symbol));
             $data = $this->getDataForView();
             $data["quotes"] = $allQuotes;
@@ -37,27 +37,32 @@ class HomeController extends Controller
         return $this->error(['400' => 'Inputted symbol is invalid!']);
     }
 
-
+    /**
+     * Endpoint function for a transaction. Determine whether it is
+     * for buying or for selling by using Request object.
+     *
+     * @param Request $request
+     * @param string $symbol ticker symbol
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function transaction(Request $request, $symbol)
     {
         $data = array();
         // Type of the request (buy or sell)
         $type = $this->sanitize($request->input('type'));
         if (isset($type) && is_string($type)) {
-            $data = $this->getDataForView();
-            $data['stockPerform'] = $this->getStockFromStocks($symbol, $data['stocks']);
             if (strtolower($type) == 'sell') {
                 $data['action'] = 'sell';
             } else if (strtolower($type) == 'buy') {
                 $data['action'] = 'buy';
             } else {
-                $this->error(['400' => 'Invalid request']);
+                return $this->error(['400' => 'Invalid request']);
             }
+            // Add basic user stocks data to array
+            $data = array_merge($data, $this->getDataForView());
+            $data['stockPerform'] = $this->getStockFromStocks($symbol, $data['stocks']);
         } else {
-            $data = [
-                'error' => 'true',
-                'errorMsg' => 'Invalid request!',
-            ];
+            return $this->error(['400' => 'Invalid request']);
         }
         return view('home', $data);
     }
@@ -90,9 +95,9 @@ class HomeController extends Controller
         $user = Auth::user();
 
         // Access the share count from the form
-        $shareCount = $request->input('share_count');
+        $shareCount = $this->sanitize($request->input('share_count'));
 
-        if (is_numeric($shareCount)) {
+        if (is_numeric($shareCount) && $shareCount > 0) {
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
             $response = UserUtility::sellShares($user, $symbol, $shareCount);
@@ -121,18 +126,19 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
-        $shares = $request->input("share_count");
-        $cost = CurrencyConverter::convertToUSD($quote["data"][0]["currency"], $quote["data"][0]["price"]) * $shares;
+        $shares = $this->sanitize($request->input("share_count"));
 
-        if (!UserUtility::hasEnoughCash($user, $cost)) {
-            return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
-        }
+        if (is_numeric($shares) && $shares > 0) {
+            $cost = CurrencyConverter::convertToUSD($quote["data"][0]["currency"], $quote["data"][0]["price"]) * $shares;
 
-        if (UserUtility::hasMaxAndCantUpdate($user, $quote)) {
-            return $this->error(['400' => 'You already have shares with 5 different companies']);
-        }
+            if (!UserUtility::hasEnoughCash($user, $cost)) {
+                return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
+            }
 
-        if (is_numeric($shares)) {
+            if (UserUtility::hasMaxAndCantUpdate($user, $quote)) {
+                return $this->error(['400' => 'You already have shares with 5 different companies']);
+            }
+
             $shares = floor($shares);
             UserUtility::storeStock($user, $quote, $shares);
         } else {
@@ -141,7 +147,6 @@ class HomeController extends Controller
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();
-
 
         return redirect()->route('home', $data);
     }

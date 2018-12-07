@@ -24,36 +24,57 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Performs quoting on inputted strings. Calls API to get
+     * information about each symbol. Symbols can be delimited by the
+     * following characters: {",", " ", "-", ";", ":"}. Spaces are
+     * are omitted.
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function quotes(Request $request)
     {
-        $allQuotes = FinanceAPI::getAllStockInfo(explode(",", $request->input("ticker_symbol")));
-        $data = $this->getDataForView();
-        $data["quotes"] = $allQuotes;
+        $symbol = trim($this->sanitize($request->input("ticker_symbol")));
+        if (is_string($symbol) && strlen($symbol) > 0) {
+            $symbols = preg_split("/(,| |-|;|:)/", $symbol, -1, PREG_SPLIT_NO_EMPTY);
+            if (count($symbols) > 0) {
+                $allQuotes = FinanceAPI::getAllStockInfo($symbols);
+                $data = $this->getDataForView();
+                $data["quotes"] = $allQuotes;
 
-        return view("/home", $data);
+                return view("/home", $data);
+            }
+        }
+        return $this->error(['400' => 'Inputted symbol(s) is invalid!']);
     }
 
-
+    /**
+     * Endpoint function for a transaction. Determine whether it is
+     * for buying or for selling by using Request object.
+     *
+     * @param Request $request
+     * @param string $symbol ticker symbol
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function transaction(Request $request, $symbol)
     {
         $data = array();
         // Type of the request (buy or sell)
         $type = $this->sanitize($request->input('type'));
         if (isset($type) && is_string($type)) {
-            $data = $this->getDataForView();
-            $data['stockPerform'] = $this->getStockFromStocks($symbol, $data['stocks']);
             if (strtolower($type) == 'sell') {
                 $data['action'] = 'sell';
             } else if (strtolower($type) == 'buy') {
                 $data['action'] = 'buy';
             } else {
-                $this->error(['400' => 'Invalid request']);
+                return $this->error(['400' => 'Invalid request']);
             }
+            // Add basic user stocks data to array
+            $data = array_merge($data, $this->getDataForView());
+            $data['stockPerform'] = $this->getStockFromStocks($symbol, $data['stocks']);
         } else {
-            $data = [
-                'error' => 'true',
-                'errorMsg' => 'Invalid request!',
-            ];
+            return $this->error(['400' => 'Invalid request']);
         }
         return view('home', $data);
     }
@@ -86,13 +107,13 @@ class HomeController extends Controller
         $user = Auth::user();
 
         // Access the share count from the form
-        $shareCount = $request->input('share_count');
+        $shareCount = $this->sanitize($request->input('share_count'));
 
-        if (is_numeric($shareCount)) {
+        if (is_numeric($shareCount) && $shareCount > 0) {
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
             $response = UserUtility::sellShares($user, $symbol, $shareCount);
-            if($response !== true) {
+            if ($response !== true) {
                 // String returned from sellShares is an error message
                 return $this->error($response);
             }
@@ -117,18 +138,19 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
-        $shares = $request->input("share_count");
-        $cost = CurrencyConverter::convertToUSD($quote["data"][0]["currency"], $quote["data"][0]["price"]) * $shares;
+        $shares = $this->sanitize($request->input("share_count"));
 
-        if (!UserUtility::hasEnoughCash($user, $cost)) {
-            return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
-        }
+        if (is_numeric($shares) && $shares > 0) {
+            $cost = CurrencyConverter::convertToUSD($quote["data"][0]["currency"], $quote["data"][0]["price"]) * $shares;
 
-        if (UserUtility::hasMaxAndCantUpdate($user, $quote)) {
-            return $this->error(['400' => 'You already have shares with 5 different companies']);
-        }
+            if (!UserUtility::hasEnoughCash($user, $cost)) {
+                return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
+            }
 
-        if (is_numeric($shares)) {
+            if (UserUtility::hasMaxAndCantUpdate($user, $quote)) {
+                return $this->error(['400' => 'You already have shares with 5 different companies']);
+            }
+
             $shares = floor($shares);
             UserUtility::storeStock($user, $quote, $shares);
         } else {
@@ -137,8 +159,6 @@ class HomeController extends Controller
 
         // Get the portfolio data for the view
         $data = $this->getDataForView();
-
-
 
         return redirect()->route('home', $data);
     }
@@ -346,16 +366,19 @@ class HomeController extends Controller
 
         $value = 0;
         $closeValue = 0;
+        $portfolioChange = 0;
         if (count($stocks) > 0 && count($shareCounts) > 0) {
             $value = $portfolioController->getPortfolioValue($stocks, $shareCounts);
             $closeValue = $portfolioController->getPortfolioLastCloseValue($stocks, $shareCounts);
+            $portfolioChange = UserUtility::getPercentageChange($value, $closeValue);
         }
 
         return [
             'cash' => $user->portfolios->cash_owned,
+            'since' => self::getDateFromTimestamp($user->created_at),
             'value' => $value,
             'closeValue' => $closeValue,
-            'since' => self::getDateFromTimestamp($user->created_at),
+            'portfolioChange' => $portfolioChange,
         ];
     }
 
@@ -394,6 +417,12 @@ class HomeController extends Controller
         return substr($tm, 0, $pos);
     }
 
+    /**
+     * Strips any html tags and returns the string.
+     *
+     * @param string $str string to validate
+     * @return string after sanitation
+     */
     private function sanitize($str)
     {
         $str = strip_tags($str);

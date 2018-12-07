@@ -276,4 +276,19 @@ class UserUtility
         return $stockCount ===  $maxStocks && !$stocks->where("ticker_symbol", "=",
                 $stockInfo["data"][0]["symbol"])->first();
     }
+
+    /**
+     * Gets percentage change between current and last daily close portfolio value
+     *
+     * @param decimal Current portfolio value
+     * @param decimal Last daily close portfolio value
+     * @return decimal Percentage change
+     */
+    public static function getPercentageChange($current, $lastClose)
+    {
+        if($lastClose > 0) {
+            return number_format((($current - $lastClose) / $lastClose) * 100, 3); // 3 values after decimal point
+        }
+        return 0;
+    }
 }

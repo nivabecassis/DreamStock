@@ -11,6 +11,16 @@ use Config;
 
 class ApiController extends Controller
 {
+    /**
+     * This function is called when an API request to buy a stock is made
+     *
+     * Method type: Post
+     * Error responses: 401, 400, 403
+     * Success response: 200
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function buyStock(Request $request)
     {
 

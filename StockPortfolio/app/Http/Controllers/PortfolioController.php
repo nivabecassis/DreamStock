@@ -20,31 +20,6 @@ class PortfolioController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
-    {
-        // Gets current authenticated user
-        $user = Auth::user();
-
-        // Loads metadata
-        $json = $this->loadMetadata($user);
-        $data = $json['info']['data'];
-        $tickers = $json['tickers'];
-
-        // Gets user's balance
-        $balance = $this->getBalance($user);
-
-        // Gets current portfolio value
-        $portfolioValue = $this->getPortfolioValue($data, $tickers);
-
-        // Gets last daily close portfolio value
-        $portfolioLastCloseValue = $this->getPortfolioLastCloseValue($data, $tickers);
-
-        // Gets percentage change between current and last daily close portfolio value
-        $percentageChange = UserUtility::getPercentageChange($portfolioValue, $portfolioLastCloseValue);
-
-        return view('buying_stocks.get_quotes');
-    }
-
     /**
      * Gets user balance
      *

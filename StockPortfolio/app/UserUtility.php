@@ -286,6 +286,9 @@ class UserUtility
      */
     public static function getPercentageChange($current, $lastClose)
     {
-        return number_format((($current - $lastClose) / $lastClose) * 100, 3); // 3 values after decimal point
+        if($lastClose > 0) {
+            return number_format((($current - $lastClose) / $lastClose) * 100, 3); // 3 values after decimal point
+        }
+        return 0;
     }
 }

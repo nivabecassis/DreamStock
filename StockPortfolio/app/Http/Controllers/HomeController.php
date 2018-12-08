@@ -48,7 +48,7 @@ class HomeController extends Controller
         if (is_string($symbol) && strlen($symbol) > 0) {
             $symbols = preg_split("/(,| |-|;|:)/", $symbol, -1, PREG_SPLIT_NO_EMPTY);
             if (count($symbols) > 0) {
-                $allQuotes = $this->hasNoMoreRequests($symbols);
+                $allQuotes = FinanceAPI::getAllStockInfo($symbols);
                 $data = $this->getDataForView();
                 $data["quotes"] = $allQuotes;
 
@@ -146,7 +146,7 @@ class HomeController extends Controller
     function purchaseStock(Request $request, $symbol)
     {
         $user = Auth::user();
-        $quote = $this->hasNoMoreRequests(explode(",", $symbol));
+        $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
         $shares = $this->sanitize($request->input("share_count"));
 
         if (is_numeric($shares) && $shares > 0) {
@@ -256,9 +256,8 @@ class HomeController extends Controller
         $shareCounts = array();
         // Get data associated with each stock
         if (count($tickers) > 0) {
-            $stocksData = array();
             // Array of stock data (comes from API call)
-            $stocksInfo = $this->hasNoMoreRequests($tickers);
+            $stocksData = FinanceAPI::getAllStockInfo($tickers)['data'];
             // Returns a single array containing all the necessary information
             // for stocks with pricing in USD.
             $stocks = $this->getStocksInfo($dbStocks, $stocksData);

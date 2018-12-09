@@ -185,7 +185,8 @@ class HomeController extends Controller
         $stocksData = FinanceAPI::getAllStockInfo($allTickers);
         if (!isset($stocksData['data'])) {
             return view('home', [
-                'message' => 'Daily API request has reached its limit for today',
+                'message' => "No information shown due to maximum (250) reach of daily API requests. Resets at 12PM (UTC).
+                              We apologize for the inconvenience this has caused.",
                 'messageType' => 'danger',
             ]);
         } else {
@@ -306,7 +307,8 @@ class HomeController extends Controller
             return $stocksInfo['data'];
         } else {
             $error = [
-                'message' => 'Daily API request has reached its limit for today',
+                'message' => "No information shown due to maximum (250) reach of daily API requests. Resets at 12PM (UTC).
+                              We apologize for the inconvenience this has caused.",
                 'messageType' => 'danger',
             ];
             return view('home', $error);

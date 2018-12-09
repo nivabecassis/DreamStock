@@ -324,7 +324,7 @@ class HomeController extends Controller
      * Checks if there are API requests available.
      * 
      * @param $tickers User's tickers input
-     * @return 
+     * @return bool True if no more API requests else false
      */
     private function hasNoMoreRequests($data)
     {

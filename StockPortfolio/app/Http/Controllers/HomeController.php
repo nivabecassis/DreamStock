@@ -163,7 +163,7 @@ class HomeController extends Controller
             $shares = floor($shares);
             UserUtility::storeStock($user, $quote, $shares);
 
-            return $this->message('Successfully purchased '.$shareCount.' stock(s) of '.$symbol.'.', 'success');
+            return $this->message('Successfully purchased '.$shares.' stock(s) of '.$symbol.'.', 'success');
         }
         return $this->message('Invalid number of stocks entered', 'danger');    
     }

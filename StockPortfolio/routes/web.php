@@ -22,3 +22,6 @@ Route::get('home/transaction/{symbol}', 'HomeController@transaction')->name('tra
 Route::post('/home/transaction/sell/{symbol}', 'HomeController@sell')->name('sell');
 Route::post('/home/transaction/buy/{symbol}', 'HomeController@purchaseStock')->name('buy');
 Route::post('/home/quotes', "HomeController@quotes");
+Route::get('/home/quotes', function() {
+    return redirect('home');
+});

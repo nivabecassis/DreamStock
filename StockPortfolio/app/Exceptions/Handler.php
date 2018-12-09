@@ -50,8 +50,20 @@ class Handler extends ExceptionHandler
             return response()->json(['token_expired'], $exception->getStatusCode());
         } else if ($exception instanceof Tymon\JWTAuth\Exceptions\TokenInvalidException) {
             return response()->json(['token_invalid'], $exception->getStatusCode());
+        } else if ($this->isHttpException($exception)) {
+            switch ($exception->getStatusCode()) {
+                case 404: 
+                    return redirect()->guest('home');
+                    break;
+                case 500: 
+                    return redirect()->guest('home');
+                    break;
+                default:
+                    return $this->renderHttpException($exception);
+                    break;
+            }
         }
-
+ 
         return parent::render($request, $exception);
     }
 }

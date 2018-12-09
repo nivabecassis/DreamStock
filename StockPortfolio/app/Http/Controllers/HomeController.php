@@ -48,7 +48,7 @@ class HomeController extends Controller
         if (is_string($symbol) && strlen($symbol) > 0) {
             $symbols = preg_split("/(,| |-|;|:)/", $symbol, -1, PREG_SPLIT_NO_EMPTY);
             if (count($symbols) > 0) {
-                $allQuotes = FinanceAPI::getAllStockInfo($symbols);
+                $allQuotes = $this->hasNoMoreRequests($symbols);
                 $data = $this->getDataForView();
                 $data["quotes"] = $allQuotes;
 
@@ -146,7 +146,7 @@ class HomeController extends Controller
     function purchaseStock(Request $request, $symbol)
     {
         $user = Auth::user();
-        $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
+        $quote = $this->hasNoMoreRequests(explode(",", $symbol));
         $shares = $this->sanitize($request->input("share_count"));
 
         if (is_numeric($shares) && $shares > 0) {
@@ -176,14 +176,28 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $data = $this->getDataForView();
-        $message = session()->get('message');
-        $messageType = session()->get('messageType');
-        if(isset($message) && isset($messageType)) {
-            $data['message'] = $message;
-            $data['messageType'] = $messageType;
+        // Retrieves all tickers from database associated with authenticated user
+        $user = Auth::user();
+        $portfolioStocksInfo = $user->portfolios->portfolio_stocks;
+        $allTickers = $this->getTickers($portfolioStocksInfo);
+        
+        // Pings API to check if daily API requests are available
+        $stocksData = FinanceAPI::getAllStockInfo($allTickers);
+        if (!isset($stocksData['data'])) {
+            return view('home', [
+                'message' => 'Daily API request has reached its limit for today',
+                'messageType' => 'danger',
+            ]);
+        } else {
+            $data = $this->getDataForView();
+            $message = session()->get('message');
+            $messageType = session()->get('messageType');
+            if(isset($message) && isset($messageType)) {
+                $data['message'] = $message;
+                $data['messageType'] = $messageType;
+            }
+            return view('home', $data);
         }
-        return view('home', $data);
     }
 
     /**
@@ -261,7 +275,7 @@ class HomeController extends Controller
         // Get data associated with each stock
         if (count($tickers) > 0) {
             // Array of stock data (comes from API call)
-            $stocksData = FinanceAPI::getAllStockInfo($tickers)['data'];
+            $stocksData = $this->hasNoMoreRequests($tickers);
             // Returns a single array containing all the necessary information
             // for stocks with pricing in USD.
             $stocks = $this->getStocksInfo($dbStocks, $stocksData);
@@ -283,7 +297,7 @@ class HomeController extends Controller
      * Checks if there are API requests available.
      * 
      * @param $tickers User's tickers input
-     * @return array If available, returns stoacks data; if not, returns error view
+     * @return \Illuminate\Http\Response
      */
     private function hasNoMoreRequests($tickers)
     {

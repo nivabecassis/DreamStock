@@ -5,12 +5,12 @@
         @if(isset($portfolio))
             <div class="row justify-content-center mb-3">
                 <div class="header p-3">
-                    <div class="m-2 d-inline">Balance: ${{$portfolio['cash']}}</div>
+                    <div class="m-2 d-inline">Balance: ${{number_format($portfolio['cash'], 3)}}</div>
                     <div class="m-2 d-inline">Member since: {{$portfolio['since']}} UTC</div>
                     <div class="m-2 d-inline">Default currency: USD</div>
-                    <div class="m-2 d-inline">Current value: ${{$portfolio['value']}}</div>
-                    <div class="m-2 d-inline">Last close value: ${{$portfolio['closeValue']}}</div>
-                    <div class="m-2 d-inline">Portfolio change: {{$portfolio['portfolioChange']}}%</div>
+                    <div class="m-2 d-inline">Current value: ${{number_format($portfolio['value'], 3)}}</div>
+                    <div class="m-2 d-inline">Last close value: ${{number_format($portfolio['closeValue'], 3)}}</div>
+                    <div class="m-2 d-inline">Portfolio change: {{number_format($portfolio['portfolioChange'], 3)}}%</div>
                 </div>
             </div>
         @endif
@@ -45,9 +45,9 @@
                             @foreach($stocks as $stock)
                                 <tr class="stock_record rounded">
                                     <td>{{$stock['symbol']}}</td>
-                                    <td>{{$stock['price']}}</td>
-                                    <td>{{$stock['close_yesterday']}}</td>
-                                    <td>{{$stock['change']}}</td>
+                                    <td>{{number_format($stock['price'], 3)}}</td>
+                                    <td>{{number_format($stock['close_yesterday'], 3)}}</td>
+                                    <td>{{number_format($stock['change'], 3)}}</td>
                                     <td>{{$stock['count']}}</td>
                                     <td>
                                         <div class="form-group p-2">
@@ -95,7 +95,7 @@
                             <tbody>
                             <tr class="stock_record rounded">
                                 <td scope="col" class="p-2">{{$stockPerform['symbol']}}</td>
-                                <td scope="col" class="p-2">{{$stockPerform['price']}}</td>
+                                <td scope="col" class="p-2">{{number_format($stockPerform['price'], 3)}}</td>
                                 @if($stockPerform['currency'] != 'USD')
                                     <td scope="col" class="p-2">{{$stockPerform['orig_price']}}</td>
                                 @endif
@@ -182,7 +182,7 @@
                                         <td scope="col" class="p-2">{{$quote["symbol"]}}</td>
                                         <td scope="col" class="p-2">{{$quote["name"]}}</td>
                                         <td scope="col" class="p-2">{{$quote["shares"]}}</td>
-                                        <td scope="col" class="p-2">{{$quote["price"]}}</td> 
+                                        <td scope="col" class="p-2">{{number_format($quote["price"], 3)}}</td> 
                                         <td scope="col" class="p-2">
                                             <form class="form-inline justify-content-center"
                                                   action={{url("/home/transaction/buy/" . $quote["symbol"])}} method="POST">

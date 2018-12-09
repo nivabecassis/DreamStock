@@ -198,15 +198,17 @@ class HomeController extends Controller
         $portfolioStocksInfo = $user->portfolios->portfolio_stocks;
         $allTickers = $this->getTickers($portfolioStocksInfo);
         
-        // Pings API to check if daily API requests are available
-        $stocksData = FinanceAPI::getAllStockInfo($allTickers);
-        if ($this->hasNoMoreRequests($stocksData)) {
-            return $this->viewHome(
-                "No information shown due to maximum (250) reach of daily API requests. 
-                Resets at 12PM (UTC).
-                We apologize for the inconvenience this has caused.",
-                'danger'
-            );
+        if (count($allTickers) > 0) {
+            // Pings API to check if daily API requests are available
+            $stocksData = FinanceAPI::getAllStockInfo($allTickers);
+            if ($this->hasNoMoreRequests($stocksData)) {
+                return $this->viewHome(
+                    "No information shown due to maximum (250) reach of daily API requests. 
+                    Resets at 12PM (UTC).
+                    We apologize for the inconvenience this has caused.",
+                    'danger'
+                );
+            }
         }
         
         $data = $this->getDataForView();

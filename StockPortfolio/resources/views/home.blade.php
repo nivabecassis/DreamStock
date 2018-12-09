@@ -14,6 +14,17 @@
                 </div>
             </div>
         @endif
+
+        @if (isset($message) && isset($messageType)) 
+            <section class="container-fluid">
+                <div class="mb-3">
+                    <div class="alert alert-{{ $messageType }}" role="alert">
+                        {{ $message }}
+                    </div>
+                </div>
+            </section>
+        @endif
+
         @if(isset($stocks))
             <h3>My stocks</h3>
             <div class="row justify-content-center">

@@ -55,7 +55,7 @@ class HomeController extends Controller
                 return view("/home", $data);
             }
         }
-        return $this->error(['400' => 'Inputted symbol(s) is invalid!']);
+        return $this->redirectHome('Inputted symbol(s) is invalid!', 'danger');
     }
 
     /**
@@ -77,13 +77,16 @@ class HomeController extends Controller
             } else if (strtolower($type) == 'buy') {
                 $data['action'] = 'buy';
             } else {
-                return $this->error(['400' => 'Invalid request']);
+                return $this->redirectHome('Invalid request', 'danger');
             }
             // Add basic user stocks data to array
             $data = array_merge($data, $this->getDataForView());
             $data['stockPerform'] = $this->getStockFromStocks($symbol, $data['stocks']);
         } else {
-            return $this->error(['400' => 'Invalid request']);
+            $data = [
+                'message' => 'Invalid request!',
+                'messageType' => 'danger',
+            ];
         }
         return view('home', $data);
     }
@@ -118,22 +121,19 @@ class HomeController extends Controller
         // Access the share count from the form
         $shareCount = $this->sanitize($request->input('share_count'));
 
+        $data = array();
         if (is_numeric($shareCount) && $shareCount > 0) {
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
             $response = UserUtility::sellShares($user, $symbol, $shareCount);
             if ($response !== true) {
                 // String returned from sellShares is an error message
-                return $this->error($response);
+                return $this->redirectHome($response, 'danger');
+            } else if($response === true) {
+                return $this->redirectHome('Successfully sold '.$shareCount.' stock(s) of '.$symbol.' from your portfolio.', 'success');
             }
-        } else {
-            return $this->error(['400' => 'Invalid number of stocks entered']);
         }
-
-        // Get the portfolio data for the view
-        $data = $this->getDataForView();
-
-        return redirect()->route('home', $data);
+        return $this->redirectHome('Invalid number of stocks entered', 'danger');
     }
 
     /**
@@ -153,33 +153,37 @@ class HomeController extends Controller
             $cost = CurrencyConverter::convertToUSD($quote["data"][0]["currency"], $quote["data"][0]["price"]) * $shares;
 
             if (!UserUtility::hasEnoughCash($user, $cost)) {
-                return $this->error(['400' => 'You didn\'t have enough cash to complete the last purchase']);
+                return $this->redirectHome('You didn\'t have enough cash to complete the last purchase', 'danger');
             }
 
             if (UserUtility::hasMaxAndCantUpdate($user, $quote)) {
-                return $this->error(['400' => 'You already have shares with 5 different companies']);
+                return $this->redirectHome('You already have shares with 5 different companies', 'danger');
             }
 
             $shares = floor($shares);
             UserUtility::storeStock($user, $quote, $shares);
-        } else {
-            return $this->error(['400' => 'Invalid number of stocks entered']);
+
+            return $this->redirectHome('Successfully purchased '.$shares.' stock(s) of '.$symbol.'.', 'success');
         }
-
-        // Get the portfolio data for the view
-        $data = $this->getDataForView();
-
-        return redirect()->route('home', $data);
+        return $this->redirectHome('Invalid number of stocks entered', 'danger');    
     }
 
     /**
-     * Show the application dashboard.
+     * Show the application dashboard. Uses flashed data stored during
+     * actions to display messages to the user.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return view('home', $this->getDataForView());
+        $data = $this->getDataForView();
+        $message = session()->get('message');
+        $messageType = session()->get('messageType');
+        if(isset($message) && isset($messageType)) {
+            $data['message'] = $message;
+            $data['messageType'] = $messageType;
+        }
+        return view('home', $data);
     }
 
     /**
@@ -287,7 +291,11 @@ class HomeController extends Controller
         if (isset($stocksInfo['data'])) {
             return $stocksInfo['data'];
         } else {
-            return $this->error(['400' => 'Daily API request has reached its limit for today']);   
+            $error = [
+                'message' => 'Daily API request has reached its limit for today',
+                'messageType' => 'danger',
+            ];
+            return view('home', $error);
         }
     }
 
@@ -456,14 +464,18 @@ class HomeController extends Controller
     }
 
     /**
-     * Redirect to the error page with the given. Default is 500.
-     *
-     * @param array $errors errors encountered. Associative array: key = code
-     * value = message.
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * Redirects the user back to the home page route and provides details
+     * on the action's result using flashed data.
+     * 
+     * @param string $message Message to be displayed to the user.
+     * @param string $messageType Type of the message. Possible values for
+     * message type are as follows: {'success', 'danger'}
+     * @return redirect to the home page with flashed data
      */
-    private function error($errors = array())
-    {
-        return view('common.errors', ['errors' => $errors]);
+    private function redirectHome(string $message, string $messageType) {
+        return redirect()->route('home')->with([
+            'message' => $message,
+            'messageType' => $messageType,
+        ]);
     }
 }

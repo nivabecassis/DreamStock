@@ -195,10 +195,11 @@ class HomeController extends Controller
     {
         // Retrieves all tickers from database associated with authenticated user
         $user = Auth::user();
-        $portfolioStocksInfo = $user->portfolios->portfolio_stocks;
-        $allTickers = $this->getTickers($portfolioStocksInfo);
-        
-        if (count($allTickers) > 0) {
+
+        // User has stocks to show
+        if(!$this->hasNoPortfolio($user)) {
+            $portfolioStocksInfo = $user->portfolios->portfolio_stocks;
+            $allTickers = $this->getTickers($portfolioStocksInfo);
             // Pings API to check if daily API requests are available
             $stocksData = FinanceAPI::getAllStockInfo($allTickers);
             if ($this->hasNoMoreRequests($stocksData)) {
@@ -229,13 +230,28 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         $data = array();
-        if (!isset($user->portfolios) || count($user->portfolios->portfolio_stocks) == 0) {
+        if($this->hasNoPortfolio($user))
+        {
             $data = $this->showNoData($user);
             $data['portfolio'] = $this->getPortfolioData($user);
         } else {
             $data = $this->showData($user);
         }
         return $data;
+    }
+
+    /**
+     * Checks the user's information in the database to see if they 
+     * have any stocks in their portfolio. The function returns 
+     * true if the user exists and has no portfolio created or 
+     * has no stocks to show.
+     * 
+     * @param User $user Trying to sign in
+     * @return True if user has nothing to show, false otherwise
+     */
+    private function hasNoPortfolio($user) 
+    {
+        return !isset($user->portfolios) || count($user->portfolios->portfolio_stocks) == 0;
     }
 
     /**

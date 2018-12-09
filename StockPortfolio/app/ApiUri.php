@@ -21,6 +21,7 @@ define("WORLDTRADINGDATA", "https://www.worldtradingdata.com/api/v1/stock");
 // define ("APIKEY", "54nCAF0E1giPTW0moWVUQe4Ts0qV6mVjCzHxuUTb4Xu3Ul486m8WYSilxej2");
 
 // Spare key
-define ("APIKEY", "GIw8eYl60EyMYJJE0h5nG7Xa1mScAVdeABdsSb9mKtppw9claparThBaAu4H");
+// define ("APIKEY", "GIw8eYl60EyMYJJE0h5nG7Xa1mScAVdeABdsSb9mKtppw9claparThBaAu4H");
 
-
+// Spare key
+define ("APIKEY", "7rF3elmAUoASQMPVp4Vkk55RiUocRrgDe1QmWsutBEjJvQ32MB8BbqiQ9x4g");

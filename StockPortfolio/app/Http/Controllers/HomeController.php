@@ -126,11 +126,12 @@ class HomeController extends Controller
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
             $response = UserUtility::sellShares($user, $symbol, $shareCount);
-            if ($response === true) {
-                return $this->message('Successfully sold '.$shareCount.' stock(s) of '.$symbol.' from your portfolio.', 'success');
-            } else {
+            // return var_dump($response);
+            if ($response !== true) {
                 // String returned from sellShares is an error message
                 return $this->message($response, 'danger');
+            } else if($response === true) {
+                return $this->redirectHome('Successfully sold '.$shareCount.' stock(s) of '.$symbol.' from your portfolio.', 'success');
             }
         }
         return $this->message('Invalid number of stocks entered', 'danger');
@@ -163,19 +164,27 @@ class HomeController extends Controller
             $shares = floor($shares);
             UserUtility::storeStock($user, $quote, $shares);
 
-            return $this->message('Successfully purchased '.$shares.' stock(s) of '.$symbol.'.', 'success');
+            return $this->redirectHome('Successfully purchased '.$shares.' stock(s) of '.$symbol.'.', 'success');
         }
         return $this->message('Invalid number of stocks entered', 'danger');    
     }
 
     /**
-     * Show the application dashboard.
+     * Show the application dashboard. Uses flashed data stored during
+     * actions to display messages to the user.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return view('home', $this->getDataForView());
+        $data = $this->getDataForView();
+        $message = session()->get('message');
+        $messageType = session()->get('messageType');
+        if(isset($message) && isset($messageType)) {
+            $data['message'] = $message;
+            $data['messageType'] = $messageType;
+        }
+        return view('home', $data);
     }
 
     /**
@@ -469,5 +478,16 @@ class HomeController extends Controller
         $data['message'] = $message;
         $data['messageType'] = $messageType;
         return view('home', $data);
+    }
+
+    /**
+     * Redirects the user back to the home page route and provides details
+     * on the action's result using flashed data.
+     */
+    private function redirectHome(string $message, string $messageType) {
+        return redirect()->route('home')->with([
+            'message' => $message,
+            'messageType' => $messageType,
+        ]);
     }
 }

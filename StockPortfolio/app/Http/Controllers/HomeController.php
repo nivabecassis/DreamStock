@@ -55,7 +55,7 @@ class HomeController extends Controller
                 return view("/home", $data);
             }
         }
-        return $this->message('Inputted symbol(s) is invalid!', 'danger');
+        return $this->redirectHome('Inputted symbol(s) is invalid!', 'danger');
     }
 
     /**
@@ -77,7 +77,7 @@ class HomeController extends Controller
             } else if (strtolower($type) == 'buy') {
                 $data['action'] = 'buy';
             } else {
-                return $this->message('Invalid request', 'danger');
+                return $this->redirectHome('Invalid request', 'danger');
             }
             // Add basic user stocks data to array
             $data = array_merge($data, $this->getDataForView());
@@ -129,12 +129,12 @@ class HomeController extends Controller
             // return var_dump($response);
             if ($response !== true) {
                 // String returned from sellShares is an error message
-                return $this->message($response, 'danger');
+                return $this->redirectHome($response, 'danger');
             } else if($response === true) {
                 return $this->redirectHome('Successfully sold '.$shareCount.' stock(s) of '.$symbol.' from your portfolio.', 'success');
             }
         }
-        return $this->message('Invalid number of stocks entered', 'danger');
+        return $this->redirectHome('Invalid number of stocks entered', 'danger');
     }
 
     /**
@@ -154,11 +154,11 @@ class HomeController extends Controller
             $cost = CurrencyConverter::convertToUSD($quote["data"][0]["currency"], $quote["data"][0]["price"]) * $shares;
 
             if (!UserUtility::hasEnoughCash($user, $cost)) {
-                return $this->message('You didn\'t have enough cash to complete the last purchase', 'danger');
+                return $this->redirectHome('You didn\'t have enough cash to complete the last purchase', 'danger');
             }
 
             if (UserUtility::hasMaxAndCantUpdate($user, $quote)) {
-                return $this->message('You already have shares with 5 different companies', 'danger');
+                return $this->redirectHome('You already have shares with 5 different companies', 'danger');
             }
 
             $shares = floor($shares);
@@ -166,7 +166,7 @@ class HomeController extends Controller
 
             return $this->redirectHome('Successfully purchased '.$shares.' stock(s) of '.$symbol.'.', 'success');
         }
-        return $this->message('Invalid number of stocks entered', 'danger');    
+        return $this->redirectHome('Invalid number of stocks entered', 'danger');    
     }
 
     /**
@@ -465,24 +465,13 @@ class HomeController extends Controller
     }
 
     /**
-     * Fetches the data for the homepage and adds the message and message type to
-     * the array. Returns the view for displaying.
+     * Redirects the user back to the home page route and provides details
+     * on the action's result using flashed data.
      * 
      * @param string $message Message to be displayed to the user.
      * @param string $messageType Type of the message. Possible values for
      * message type are as follows: {'success', 'danger'}
-     * @return home view containing the data for the homepage
-     */
-    private function message(string $message, string $messageType) {
-        $data = $this->getDataForView();
-        $data['message'] = $message;
-        $data['messageType'] = $messageType;
-        return view('home', $data);
-    }
-
-    /**
-     * Redirects the user back to the home page route and provides details
-     * on the action's result using flashed data.
+     * @return redirect to the home page with flashed data
      */
     private function redirectHome(string $message, string $messageType) {
         return redirect()->route('home')->with([

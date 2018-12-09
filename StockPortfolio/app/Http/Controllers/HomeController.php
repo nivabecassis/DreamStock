@@ -48,7 +48,16 @@ class HomeController extends Controller
         if (is_string($symbol) && strlen($symbol) > 0) {
             $symbols = preg_split("/(,| |-|;|:)/", $symbol, -1, PREG_SPLIT_NO_EMPTY);
             if (count($symbols) > 0) {
-                $allQuotes = $this->hasNoMoreRequests($symbols);
+                $allQuotes = FinanceAPI::getAllStockInfo($symbols);
+                if ($this->hasNoMoreRequests($allQuotes)) {
+                    return $this->viewHome(
+                        "No information shown due to maximum (250) reach of daily API requests. 
+                        Resets at 12PM (UTC).
+                        We apologize for the inconvenience this has caused.",
+                        'danger'
+                    );
+                }
+                
                 $data = $this->getDataForView();
                 $data["quotes"] = $allQuotes;
 
@@ -146,7 +155,15 @@ class HomeController extends Controller
     function purchaseStock(Request $request, $symbol)
     {
         $user = Auth::user();
-        $quote = $this->hasNoMoreRequests(explode(",", $symbol));
+        $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
+        if ($this->hasNoMoreRequests($quote)) {
+            return $this->viewHome(
+                "No information shown due to maximum (250) reach of daily API requests. 
+                Resets at 12PM (UTC).
+                We apologize for the inconvenience this has caused.",
+                'danger'
+            );
+        }
         $shares = $this->sanitize($request->input("share_count"));
 
         if (is_numeric($shares) && $shares > 0) {
@@ -183,22 +200,23 @@ class HomeController extends Controller
         
         // Pings API to check if daily API requests are available
         $stocksData = FinanceAPI::getAllStockInfo($allTickers);
-        if (!isset($stocksData['data'])) {
-            return view('home', [
-                'message' => "No information shown due to maximum (250) reach of daily API requests. Resets at 12PM (UTC).
-                              We apologize for the inconvenience this has caused.",
-                'messageType' => 'danger',
-            ]);
-        } else {
-            $data = $this->getDataForView();
-            $message = session()->get('message');
-            $messageType = session()->get('messageType');
-            if(isset($message) && isset($messageType)) {
-                $data['message'] = $message;
-                $data['messageType'] = $messageType;
-            }
-            return view('home', $data);
+        if ($this->hasNoMoreRequests($stocksData)) {
+            return $this->viewHome(
+                "No information shown due to maximum (250) reach of daily API requests. 
+                Resets at 12PM (UTC).
+                We apologize for the inconvenience this has caused.",
+                'danger'
+            );
         }
+        
+        $data = $this->getDataForView();
+        $message = session()->get('message');
+        $messageType = session()->get('messageType');
+        if(isset($message) && isset($messageType)) {
+            $data['message'] = $message;
+            $data['messageType'] = $messageType;
+        }
+        return view('home', $data);    
     }
 
     /**
@@ -276,14 +294,22 @@ class HomeController extends Controller
         // Get data associated with each stock
         if (count($tickers) > 0) {
             // Array of stock data (comes from API call)
-            $stocksData = $this->hasNoMoreRequests($tickers);
+            $stocksInfo = FinanceAPI::getAllStockInfo($tickers);
+            if ($this->hasNoMoreRequests($stocksInfo)) {
+                return $this->viewHome(
+                    "No information shown due to maximum (250) reach of daily API requests. 
+                    Resets at 12PM (UTC).
+                    We apologize for the inconvenience this has caused.",
+                    'danger'
+                );
+            }
             // Returns a single array containing all the necessary information
             // for stocks with pricing in USD.
-            $stocks = $this->getStocksInfo($dbStocks, $stocksData);
+            $stocks = $this->getStocksInfo($dbStocks, $stocksInfo['data']);
             // Share count for each stock
             $shareCounts = $this->getShareCounts($stocks);
+            
         }
-
         // More details on the portfolio includes: cash_owned, value, last close value
         $portfolioDetails = $this->getPortfolioData($user, $stocks, $shareCounts);
 
@@ -298,21 +324,14 @@ class HomeController extends Controller
      * Checks if there are API requests available.
      * 
      * @param $tickers User's tickers input
-     * @return \Illuminate\Http\Response
+     * @return 
      */
-    private function hasNoMoreRequests($tickers)
+    private function hasNoMoreRequests($data)
     {
-        $stocksInfo = FinanceAPI::getAllStockInfo($tickers);
-        if (isset($stocksInfo['data'])) {
-            return $stocksInfo['data'];
-        } else {
-            $error = [
-                'message' => "No information shown due to maximum (250) reach of daily API requests. Resets at 12PM (UTC).
-                              We apologize for the inconvenience this has caused.",
-                'messageType' => 'danger',
-            ];
-            return view('home', $error);
+        if (!isset($data['data'])) {
+            return true;
         }
+        return false;
     }
 
     /**
@@ -488,8 +507,26 @@ class HomeController extends Controller
      * message type are as follows: {'success', 'danger'}
      * @return redirect to the home page with flashed data
      */
-    private function redirectHome(string $message, string $messageType) {
+    private function redirectHome(string $message, string $messageType) 
+    {
         return redirect()->route('home')->with([
+            'message' => $message,
+            'messageType' => $messageType,
+        ]);
+    }
+
+    /**
+     * Returns the user back to the home page and provides details
+     * on the action's result.
+     * 
+     * @param string $message Message to be displayed to the user.
+     * @param string $messageType Type of the message. Possible values for
+     * message type are as follows: {'success', 'danger'}
+     * @return Illuminate\View\View Home page view
+     */
+    private function viewHome(string $message, string $messageType) 
+    {
+        return view('home', [
             'message' => $message,
             'messageType' => $messageType,
         ]);

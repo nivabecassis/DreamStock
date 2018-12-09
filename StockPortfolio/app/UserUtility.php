@@ -38,6 +38,11 @@ class UserUtility
         $response = false;
         if ($ownedShares > 0 && $ownedShares >= $count) {
             $amount = self::calcTotalStockValue($symbol, $count);
+            if ($amount === null) {
+                return "No information shown due to maximum (250) reach of daily API requests. 
+                        Resets at 12PM (UTC).
+                        We apologize for the inconvenience this has caused.";
+            }
             if (self::performTransaction($user, $amount)) {
                 // Transaction approved and executed
                 $stock->share_count -= $count;
@@ -67,13 +72,18 @@ class UserUtility
      */
     public static function calcTotalStockValue($symbol, $count)
     {
-        $data = FinanceAPI::getAllStockInfo([$symbol])['data'][0];
-        $currency = $data['currency'];
-        $price = $data['price'];
-        if ($currency !== 'USD') {
-            $price = CurrencyConverter::convertToUSD($currency, $price);
+        $data = FinanceAPI::getAllStockInfo([$symbol]);
+        // Checks if daily API requests are available
+        if (!isset($data['data'][0])) {
+            return null;
+        } else {
+            $currency = $data['data'][0]['currency'];
+            $price = $data['data'][0]['price'];
+            if ($currency !== 'USD') {
+                $price = CurrencyConverter::convertToUSD($currency, $price);
+            }
+            return $price * $count;
         }
-        return $price * $count;
     }
 
     /**

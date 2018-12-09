@@ -126,7 +126,6 @@ class HomeController extends Controller
             $shareCount = floor($shareCount);
             // Execute the sale, validation is done within this function
             $response = UserUtility::sellShares($user, $symbol, $shareCount);
-            // return var_dump($response);
             if ($response !== true) {
                 // String returned from sellShares is an error message
                 return $this->redirectHome($response, 'danger');

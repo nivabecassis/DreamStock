@@ -49,7 +49,7 @@ class HomeController extends Controller
             $symbols = preg_split("/(,| |-|;|:)/", $symbol, -1, PREG_SPLIT_NO_EMPTY);
             if (count($symbols) > 0) {
                 $allQuotes = FinanceAPI::getAllStockInfo($symbols);
-                if ($this->hasNoMoreRequests($allQuotes)) {
+                if (!$this->isValidApi($allQuotes)) {
                     return $this->viewHome(
                         "No information shown due to maximum (250) reach of daily API requests. 
                         Resets at 12PM (UTC).
@@ -156,7 +156,7 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         $quote = FinanceAPI::getAllStockInfo(explode(",", $symbol));
-        if ($this->hasNoMoreRequests($quote)) {
+        if (!$this->isValidApi($quote)) {
             return $this->viewHome(
                 "No information shown due to maximum (250) reach of daily API requests. 
                 Resets at 12PM (UTC).
@@ -202,7 +202,7 @@ class HomeController extends Controller
             $allTickers = $this->getTickers($portfolioStocksInfo);
             // Pings API to check if daily API requests are available
             $stocksData = FinanceAPI::getAllStockInfo($allTickers);
-            if ($this->hasNoMoreRequests($stocksData)) {
+            if (!$this->isValidApi($stocksData)) {
                 return $this->viewHome(
                     "No information shown due to maximum (250) reach of daily API requests. 
                     Resets at 12PM (UTC).
@@ -313,7 +313,7 @@ class HomeController extends Controller
         if (count($tickers) > 0) {
             // Array of stock data (comes from API call)
             $stocksInfo = FinanceAPI::getAllStockInfo($tickers);
-            if ($this->hasNoMoreRequests($stocksInfo)) {
+            if (!$this->isValidApi($stocksInfo)) {
                 return $this->viewHome(
                     "No information shown due to maximum (250) reach of daily API requests. 
                     Resets at 12PM (UTC).
@@ -339,17 +339,24 @@ class HomeController extends Controller
     }
 
     /**
-     * Checks if there are API requests available.
+     * Checks if the API is valid by retrieve the message attribute.
+     * If it exists, that means an error has occurred. If it does not
+     * it is valid.
      * 
-     * @param $tickers User's tickers input
-     * @return bool True if no more API requests else false
+     * @param $data Stock information
+     * @return bool True if valid else false
      */
-    private function hasNoMoreRequests($data)
+    private function isValidApi($data)
     {
-        if (!isset($data['data'])) {
-            return true;
+        if (isset($data['message'])) {
+            if ($data['message'] === "You have reached your request limit for the day. Upgrade to get more daily requests.") {
+                return false;
+            }
+            if ($data['message'] === "Error! The requested stock(s) could not be found.") {
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 
     /**

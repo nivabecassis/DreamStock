@@ -1,8 +1,7 @@
 <!-- resources/views/common/errors.blade.php -->
-@extends('layouts.app')
 
-@section('content')
-    @if (count($errors) > 0)
+@section('error')
+    @if (isset($errors))
         <!-- Form Error List -->
         <section class="container">
             <section class="card">
